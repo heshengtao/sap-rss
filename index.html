@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>AI RSS Reader Pro</title>
+<link rel="stylesheet" href="../../fontawesome/css/all.min.css">
+<style>
+/* ================== 基础样式 ================== */
+:root {
+  --bg-sidebar: #f9f9f9; --bg-list: #fff; --bg-content: #fff;
+  --border: #e0e0e0; --text-main: #333; --text-sub: #666;
+  --accent: #ff6b35; --hover: #f0f0f0; --header-h: 54px;
+  --ai-summary-bg: #f8fbff; --ai-summary-border: #dbeafe;
+  --ai-text-color: #1e3a8a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+body { height: 100vh; display: flex; overflow: hidden; color: var(--text-main); background: #fff; }
+
+/* 布局 */
+.layout-col { height: 100%; overflow-y: auto; display: flex; flex-direction: column; }
+#sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); flex-shrink: 0; z-index: 3; }
+#articleList { width: 350px; background: var(--bg-list); border-right: 1px solid var(--border); flex-shrink: 0; z-index: 2; }
+#contentView { flex: 1; background: var(--bg-content); position: relative; z-index: 1; scroll-behavior: smooth; }
+
+/* 顶部栏 */
+.header-bar {
+height: var(--header-h); padding: 0 15px; border-bottom: 1px solid var(--border);
+display: flex; align-items: center; justify-content: space-between;
+background: rgba(255,255,255,0.95); backdrop-filter: blur(5px);
+position: sticky; top: 0; z-index: 10; font-weight: 600; font-size: 15px; flex-shrink: 0; 
+}
+.btn-icon { background: none; border: none; cursor: pointer; color: var(--text-sub); font-size: 16px; padding: 8px; border-radius: 6px; transition: .2s; }
+.btn-icon:hover { color: var(--accent); background: rgba(0,0,0,0.05); }
+
+/* 操作栏按钮组 */
+.toolbar-group { display: flex; gap: 8px; align-items: center; }
+.btn-toolbar {
+  display: flex; align-items: center; gap: 6px;
+  background: #f0f0f0; border: 1px solid transparent;
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 13px; color: #444; cursor: pointer; transition: all .2s;
+}
+.btn-toolbar:hover { background: #e5e5e5; color: #000; }
+.btn-toolbar.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+/* [New] 禁用状态样式 */
+.btn-toolbar:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
+.btn-toolbar i { font-size: 14px; }
+
+/* 订阅列表项 */
+.feed-item {
+padding: 10px 12px; margin: 4px 10px; border-radius: 6px; cursor: pointer;
+display: flex; align-items: center; gap: 10px; font-size: 14px; position: relative;
+transition: background .2s;
+}
+.feed-item:hover { background: rgba(0,0,0,0.05); }
+.feed-item.active { background: #e6e6e6; font-weight: 600; }
+.feed-icon { width: 16px; height: 16px; border-radius: 3px; object-fit: cover; flex-shrink: 0; }
+.feed-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 20px; }
+
+.btn-delete {
+position: absolute; right: 5px; opacity: 0; color: #999; border:none;
+background:none; cursor:pointer; padding: 4px; transition: opacity .2s; z-index: 2;
+}
+.feed-item:hover .btn-delete { opacity: 1; }
+.btn-delete:hover { color: #ff4d4f; }
+.icon-locked { position: absolute; right: 8px; color: #ccc; font-size: 12px; opacity: 0.5; }
+
+/* 文章卡片 */
+.article-card { padding: 18px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .2s; }
+.article-card:hover { background: var(--hover); }
+.article-card.active { border-left: 4px solid var(--accent); background: var(--hover); padding-left: 16px; }
+.article-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; color: #222; }
+.article-meta { font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between; }
+.article-img-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-top: 8px; display: none; }
+.article-card.has-img .article-img-preview { display: block; }
+
+/* 文章详情 */
+.article-scroll-area { padding: 30px 40px; height: calc(100% - var(--header-h)); overflow-y: auto; }
+#articleHeader { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+#articleHeader h1 { font-size: 24px; margin-bottom: 10px; line-height: 1.4; color: #111; transition: color 0.3s; }
+#articleBody { font-size: 17px; line-height: 1.8; color: #333; overflow-wrap: break-word; }
+#articleBody img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; display: block; }
+#articleBody a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
+#placeholder { height: 100%; display: flex; align-items: center; justify-content: center; color: #999; flex-direction: column; gap: 15px; }
+
+/* AI 总结区域 */
+#aiSummarySection {
+  background: var(--ai-summary-bg);
+  border: 1px solid var(--ai-summary-border);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 25px;
+  display: none;
+  font-size: 15px;
+  color: var(--ai-text-color);
+  line-height: 1.6;
+}
+#aiSummarySection .summary-header {
+  font-weight: bold; margin-bottom: 10px; font-size: 14px; 
+  display: flex; gap: 8px; align-items: center; color: var(--accent);
+}
+#aiSummaryContent ul, #aiSummaryContent ol { margin-left: 20px; margin-bottom: 10px; }
+#aiSummaryContent p { margin-bottom: 10px; }
+#aiSummaryContent strong { color: #000; }
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+body { position: relative; }
+.layout-col { position: absolute; inset: 0; width: 100%; background: #fff; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); transform: translateX(100%); }
+body[data-view="sidebar"] #sidebar { transform: translateX(0); z-index: 30; }
+body[data-view="list"] #articleList { transform: translateX(0); z-index: 40; }
+body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; }
+#sidebar, #articleList, #contentView { width: 100%; border: none; }
+.article-scroll-area { padding: 20px; }
+.btn-delete { opacity: 1; }
+.mobile-hide { display: none; }
+.mobile-show { display: inline-block; }
+.toolbar-group { gap: 5px; }
+.btn-toolbar { padding: 6px 10px; font-size: 12px; }
+.btn-toolbar span { display: none; } 
+}
+@media (min-width: 769px) { .mobile-show { display: none; } }
+
+/* 模态框 */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.modal.active { display: flex; }
+.modal-box { background: #fff; width: 90%; max-width: 420px; padding: 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-header { font-weight: bold; margin-bottom: 20px; display: flex; justify-content: space-between; font-size: 18px; }
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; margin-bottom: 6px; font-size: 13px; color: #666; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; background: #fafafa; }
+.form-group input:focus { border-color: var(--accent); background: #fff; }
+.btn { padding: 10px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-ghost { background: #eee; color: #333; }
+.tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.tag-btn { font-size: 12px; padding: 4px 8px; background: #eee; border-radius: 4px; cursor: pointer; color: #555; }
+.tag-btn:hover { background: #e0e0e0; color: #000; }
+
+/* 悬浮工具与 Loading */
+#selectionToolbar { position: fixed; display: none; z-index: 2000; background: #222; color: #fff; border-radius: 6px; padding: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+#selectionToolbar button { background: none; border: none; color: #fff; padding: 4px 10px; cursor: pointer; display: flex; gap: 6px; align-items: center; font-size: 13px; }
+#translatePopup { position: fixed; display: none; z-index: 2001; background: #fff; width: 300px; max-height: 300px; overflow-y: auto; padding: 15px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); font-size: 14px; border: 1px solid #eee; }
+.spinner { width: 24px; height: 24px; border: 3px solid #eee; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cache-badge { font-size: 12px; color: #aaa; margin-left: 5px; font-weight: normal; }
+</style>
+
+</head>
+<body data-view="sidebar">
+
+<!-- 1. 订阅列表 -->
+
+<div id="sidebar" class="layout-col">
+  <div class="header-bar">
+    <span data-i18n="sidebar.title">我的订阅</span>
+    <div>
+      <button class="btn-icon" onclick="clearCache()" data-i18n-title="sidebar.clear_cache"><i class="fa-solid fa-trash-can"></i></button>
+      <button class="btn-icon" onclick="openModal('addFeedModal')"><i class="fa-solid fa-plus"></i></button>
+      <button class="btn-icon" onclick="openModal('settingsModal')"><i class="fa-solid fa-cog"></i></button>
+    </div>
+  </div>
+  <div id="feedList"></div>
+  <div id="loadingTips" style="text-align:center; padding:20px; color:#999; font-size:13px; display:none;" data-i18n="sidebar.loading">正在加载订阅源...</div>
+</div>
+
+<!-- 2. 文章列表 -->
+
+<div id="articleList" class="layout-col">
+  <div class="header-bar">
+    <div style="display:flex; align-items:center; gap:5px; overflow:hidden;">
+      <button class="btn-icon mobile-show" onclick="navTo('sidebar')"><i class="fa-solid fa-chevron-left"></i></button>
+      <span id="currentFeedTitle" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="list.title_default">文章列表</span>
+      <span id="cacheIndicator" class="cache-badge"></span>
+    </div>
+    <button class="btn-icon" onclick="refreshFeed()"><i class="fa-solid fa-rotate-right"></i></button>
+  </div>
+  <div id="listContainer" style="padding: 20px; text-align: center; color: #888;" data-i18n="list.select_tip">
+    请选择左侧订阅源
+  </div>
+</div>
+
+<!-- 3. 文章详情 -->
+
+<div id="contentView" class="layout-col">
+  <div class="header-bar">
+    <button class="btn-icon mobile-show" onclick="navTo('list')"><i class="fa-solid fa-chevron-left"></i></button>
+    
+    <div style="flex:1"></div>
+    
+    <!-- AI 功能区 -->
+    <div class="toolbar-group">
+      <button class="btn-toolbar" id="btnSummarize" onclick="actionSummarize(this)" data-i18n-title="toolbar.tip_summarize">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span data-i18n="toolbar.summarize">全文总结</span>
+      </button>
+
+      <button class="btn-toolbar" id="btnTranslateFull" onclick="actionTranslateFull(this)" data-i18n-title="toolbar.tip_translate">
+        <i class="fa-solid fa-language"></i>
+        <span data-i18n="toolbar.translate_full">全文翻译</span>
+      </button>
+
+      <button class="btn-toolbar" id="btnAskAI" onclick="actionAskAIFull(this)" data-i18n-title="toolbar.tip_ask">
+        <i class="fa-solid fa-robot"></i>
+        <span data-i18n="toolbar.ask_full_ai">全文问AI</span>
+      </button>
+    </div>
+
+    <button class="btn-icon mobile-hide" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i></button>
+  </div>
+  
+  <div class="article-scroll-area">
+    <div id="placeholder">
+      <i class="fa-solid fa-book-open" style="font-size:48px;opacity:0.3"></i>
+      <div data-i18n="content.placeholder_text">选择文章开始阅读</div>
+    </div>
+    <div id="articleContent" style="display:none">
+      <div id="articleHeader">
+        <h1 id="artTitle"></h1>
+        <div class="article-meta">
+          <span id="artDate"></span> · 
+          <a id="artLink" target="_blank"><span data-i18n="content.read_original">阅读原文</span> <i class="fa-solid fa-external-link-alt"></i></a>
+        </div>
+      </div>
+      
+      <!-- AI 总结展示区 -->
+      <div id="aiSummarySection">
+        <div class="summary-header"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="content.summary_title">AI 智能总结</span></div>
+        <div id="aiSummaryContent"></div>
+      </div>
+
+      <div id="articleBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 悬浮工具 -->
+
+<div id="selectionToolbar">
+  <button onclick="actionTranslateSelection()"><i class="fa-solid fa-language"></i> <span data-i18n="toolbar.translate">翻译</span></button>
+  <div style="width:1px;background:#555;height:14px;margin:0 2px"></div>
+  <button onclick="actionAskAI()"><i class="fa-solid fa-robot"></i> <span data-i18n="toolbar.ask_ai">问 AI</span></button>
+</div>
+<div id="translatePopup">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;color:#888;font-size:12px">
+    <span data-i18n="toolbar.translate_result">翻译结果</span><span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer">&times;</span>
+  </div>
+  <div id="translateResult"></div>
+</div>
+
+<!-- 添加订阅 Modal -->
+
+<div id="addFeedModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header"><span data-i18n="modals.add_title">添加订阅</span> <span onclick="closeModal('addFeedModal')" style="cursor:pointer">&times;</span></div>
+    <div class="form-group"><label data-i18n="modals.url_label">URL / 路由</label>
+      <input type="text" id="feedInput" placeholder="/bilibili/ranking/0/3 or rsshub://...">
+    </div>
+    <div class="form-group">
+      <label>订阅名称 (可选)</label>
+      <input type="text" id="feedNameInput" placeholder="留空则自动生成 (e.g. URSB Blog)">
+    </div>
+    <div class="form-group"><label data-i18n="modals.type_label">类型</label>
+      <select id="feedType">
+        <option value="rsshub" data-i18n="modals.type_rsshub">RSSHub 路由</option>
+        <option value="url" data-i18n="modals.type_url">普通 RSS URL</option>
+      </select>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-ghost" onclick="closeModal('addFeedModal')" data-i18n="modals.btn_cancel">取消</button>
+      <button class="btn btn-primary" onclick="addFeed()" data-i18n="modals.btn_confirm">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- 设置 Modal -->
+
+<div id="settingsModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header"><span data-i18n="modals.settings_title">全局设置</span> <span onclick="closeModal('settingsModal')" style="cursor:pointer">&times;</span></div>
+    <div class="form-group">
+      <label data-i18n="modals.lang_label">界面语言 / Interface Language</label>
+      <select id="langSelect" onchange="changeLanguage(this.value)">
+        <option value="zh">简体中文</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label data-i18n="modals.target_lang_label">AI 翻译目标语言 / Target Language</label>
+      <select id="targetLangSelect">
+        <option value="Simplified Chinese">简体中文 (Simplified Chinese)</option>
+        <option value="Traditional Chinese">繁体中文 (Traditional Chinese)</option>
+        <option value="English">English</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Korean">Korean</option>
+        <option value="French">French</option>
+        <option value="German">German</option>
+        <option value="Spanish">Spanish</option>
+        <option value="Russian">Russian</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label data-i18n="modals.hub_label">RSSHub 实例地址</label>
+      <input type="text" id="rsshubUrl">
+      <div class="tag-container">
+        <span class="tag-btn" onclick="setHub('https://rsshub.ktachibana.party')">Ktachibana</span>
+        <span class="tag-btn" onclick="setHub('https://rsshub.rssforever.com')">RssForever</span>
+        <span class="tag-btn" onclick="setHub('https://rsshub.app')">Official</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label data-i18n="modals.cache_label">缓存有效期 (分钟)</label>
+      <input type="number" id="cacheDuration" min="1" value="30">
+      <div style="font-size:12px;color:#999;margin-top:5px" data-i18n="modals.cache_desc">
+        间隔内再次点击不会消耗流量，直接加载本地数据。<br>点击“刷新”按钮可强制更新。
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-primary" style="width:100%" onclick="saveSettings()" data-i18n="modals.btn_save">保存配置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================== DB Helper (IndexedDB) ================== */
+const DB_NAME = 'RSS_Reader_DB';
+const DB_VERSION = 1;
+
+const dbHelper = {
+  db: null,
+  async open() {
+    if (this.db) return this.db;
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('feed_cache')) db.createObjectStore('feed_cache', { keyPath: 'url' });
+        if (!db.objectStoreNames.contains('article_meta')) db.createObjectStore('article_meta', { keyPath: 'id' });
+      };
+      req.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+      req.onerror = (e) => reject(e);
+    });
+  },
+  async get(storeName, key) {
+    const db = await this.open();
+    return new Promise((r, j) => {
+      const req = db.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+      req.onsuccess = () => r(req.result);
+      req.onerror = () => j(req.error);
+    });
+  },
+  async put(storeName, val) {
+    const db = await this.open();
+    return new Promise((r, j) => {
+      const req = db.transaction(storeName, 'readwrite').objectStore(storeName).put(val);
+      req.onsuccess = () => r(req.result);
+      req.onerror = () => j(req.error);
+    });
+  },
+  async clear(storeName) {
+    const db = await this.open();
+    return new Promise((r, j) => {
+      const req = db.transaction(storeName, 'readwrite').objectStore(storeName).clear();
+      req.onsuccess = () => r();
+      req.onerror = () => j(req.error);
+    });
+  }
+};
+
+/* ================== 配置与状态 ================== */
+const CONFIG = { defaultHub: "https://rsshub.ktachibana.party", defaultCacheTime: 30, defaultLang: "zh" };
+let state = {
+  defaultFeeds: [], userFeeds: [], allFeeds: [],
+  settings: {
+    hub: localStorage.getItem('rss_hub') || CONFIG.defaultHub,
+    cacheTime: parseInt(localStorage.getItem('rss_cache_time')) || CONFIG.defaultCacheTime,
+    lang: localStorage.getItem('rss_lang') || navigator.language.split('-')[0] || CONFIG.defaultLang,
+    targetLang: localStorage.getItem('rss_target_lang') || "Simplified Chinese"
+  },
+  activeIdx: -1, articles: [], currentArticle: null, ws: null, i18nData: {}
+};
+if (!['zh', 'en'].includes(state.settings.lang)) state.settings.lang = 'zh';
+
+/* ================== 初始化 ================== */
+document.addEventListener('DOMContentLoaded', async () => {
+  initWS();
+  await initI18n();
+  updateUI();
+  document.getElementById('langSelect').value = state.settings.lang;
+  await initFeeds();
+  document.addEventListener('mouseup', handleSelect);
+  document.addEventListener('mousedown', e => {
+    if(!document.getElementById('selectionToolbar').contains(e.target)) 
+      document.getElementById('selectionToolbar').style.display='none';
+  });
+  const feedInput = document.getElementById('feedInput');
+  const feedType = document.getElementById('feedType');
+  if(feedInput) {
+    feedInput.addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      if(val.startsWith('/') || val.startsWith('rsshub://')) feedType.value = 'rsshub';
+      else if(val.startsWith('http')) feedType.value = 'url';
+    });
+  }
+});
+
+/* ================== I18n Logic ================== */
+async function initI18n() {
+  try {
+    const res = await fetch('./i18n.json');
+    if (res.ok) state.i18nData = await res.json();
+    else state.i18nData = { zh: {}, en: {} };
+  } catch(e) {}
+}
+function t(key) {
+  const keys = key.split('.');
+  let obj = state.i18nData[state.settings.lang] || {};
+  for (let k of keys) { obj = obj[k]; if (!obj) return key; }
+  return obj;
+}
+function getTrTitle(titleField) {
+  if (typeof titleField === 'object' && titleField !== null) 
+    return titleField[state.settings.lang] || titleField['zh'] || titleField['en'] || "Unnamed";
+  return titleField; 
+}
+function updateUI() {
+  document.querySelectorAll('[data-i18n]').forEach(el => el.innerHTML = t(el.getAttribute('data-i18n')));
+  document.querySelectorAll('[data-i18n-title]').forEach(el => el.setAttribute('title', t(el.getAttribute('data-i18n-title'))));
+  if (state.activeIdx === -1) {
+    document.getElementById('currentFeedTitle').innerText = t('list.title_default');
+    document.getElementById('listContainer').innerText = t('list.select_tip');
+  } else {
+    document.getElementById('currentFeedTitle').innerText = getTrTitle(state.allFeeds[state.activeIdx].title);
+    const cacheBadge = document.getElementById('cacheIndicator');
+    if (cacheBadge.innerText) {
+       cacheBadge.innerText = cacheBadge.innerText.includes(':') 
+        ? `${t('list.cache_time_prefix')} ${cacheBadge.innerText.split(' ').pop()}` 
+        : t('list.cache_latest');
+    }
+  }
+  if (state.currentArticle) updateTranslateBtnState(state.currentArticle.showingTranslation);
+  renderSidebar();
+}
+function changeLanguage(lang) {
+  state.settings.lang = lang;
+  localStorage.setItem('rss_lang', lang);
+  updateUI();
+  if(state.currentArticle) renderArticleBody(state.currentArticle);
+}
+
+/* ================== Feed & Cache ================== */
+async function initFeeds() {
+  const loadingEl = document.getElementById('loadingTips');
+  loadingEl.style.display = 'block';
+  try {
+    const res = await fetch('./default_feeds.json');
+    if (res.ok) { state.defaultFeeds = await res.json(); state.defaultFeeds.forEach(f => f.isDefault = true); }
+  } catch(e) {}
+  try {
+    const stored = localStorage.getItem('user_custom_feeds');
+    state.userFeeds = stored ? JSON.parse(stored) : [];
+  } catch(e) { state.userFeeds = []; }
+  updateAllFeeds();
+  loadingEl.style.display = 'none';
+  if(window.innerWidth > 768 && state.allFeeds.length) loadFeed(0);
+}
+function updateAllFeeds() {
+  state.allFeeds = [...state.defaultFeeds, ...state.userFeeds];
+  renderSidebar();
+}
+async function fetchRSS(feed, force) {
+  let url = feed.url;
+  if(feed.type === 'rsshub') url = url.startsWith('/') ? state.settings.hub.replace(/\/$/, '') + url : state.settings.hub.replace(/\/$/, '') + '/' + url;
+  
+  const cacheKey = url;
+  const cached = await dbHelper.get('feed_cache', cacheKey);
+  const now = Date.now();
+  if (!force && cached && (now - cached.time < state.settings.cacheTime * 60000)) {
+    return { data: cached.data, fromCache: true, time: cached.time };
+  }
+  const res = await fetch(`/rss_proxy?url=${encodeURIComponent(url)}`);
+  if(!res.ok) throw new Error(`${t('list.error_backend')} ${res.status}`);
+  
+  const text = await res.text();
+  const xml = new DOMParser().parseFromString(text, "text/xml");
+  if(xml.querySelector("parsererror")) throw new Error(t('list.error_xml'));
+
+  let items = Array.from(xml.querySelectorAll("item"));
+  if(!items.length) items = Array.from(xml.querySelectorAll("entry"));
+  if(!items.length) throw new Error(t('list.error_empty'));
+
+  const parsedItems = items.map(item => {
+    const get = (t) => { const el = item.getElementsByTagName(t)[0]; return el ? el.textContent.trim() : ""; };
+    const getLink = () => { const el = item.getElementsByTagName("link")[0]; return el ? (el.getAttribute("href") || el.textContent.trim()) : ""; }
+    const desc = get("content:encoded") || get("description") || get("content") || get("summary");
+    return {
+      title: get("title"), link: getLink(), desc: desc,
+      date: (new Date(get("pubDate") || get("published") || "")).toLocaleString(),
+      image: (desc.match(/src="([^"]+)"/) || [])[1]
+    };
+  });
+  await dbHelper.put('feed_cache', { url: cacheKey, time: now, data: parsedItems });
+  return { data: parsedItems, fromCache: false, time: now };
+}
+
+/* ================== UI Render Functions ================== */
+function renderSidebar() {
+  const list = document.getElementById('feedList');
+  list.innerHTML = '';
+  state.allFeeds.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = `feed-item ${i === state.activeIdx ? 'active' : ''}`;
+    let iconUrl = f.type === 'rsshub' ? './RSSHub_logo.png' : `https://s2.googleusercontent.com/s2/favicons?domain_url=${new URL(f.url).origin}`;
+    div.innerHTML = `<img class="feed-icon" src="${iconUrl}" onerror="this.style.opacity=0"><div class="feed-name">${getTrTitle(f.title)}</div>${f.isDefault ? '<i class="fa-solid fa-lock icon-locked"></i>' : `<button class="btn-delete" onclick="delFeed(${i}, event)">&times;</button>`}`;
+    div.onclick = () => loadFeed(i);
+    list.appendChild(div);
+  });
+}
+async function loadFeed(idx, force=false) {
+  navTo('list');
+  state.activeIdx = idx;
+  renderSidebar();
+  const container = document.getElementById('listContainer');
+  const cacheBadge = document.getElementById('cacheIndicator');
+  document.getElementById('currentFeedTitle').innerText = getTrTitle(state.allFeeds[idx].title);
+  cacheBadge.innerText = "";
+  container.innerHTML = `<div class="spinner" style="margin-top:50px"></div><div style="margin-top:10px;color:#999;font-size:12px">${t('list.loading')}</div>`;
+
+  try {
+    const result = await fetchRSS(state.allFeeds[idx], force);
+    const merged = await Promise.all(result.data.map(async (art) => {
+       const meta = await dbHelper.get('article_meta', art.link);
+       if (meta) { art.aiSummary = meta.summary; art.aiTranslation = meta.translation; art.aiTitleTranslation = meta.titleTranslation; }
+       return art;
+    }));
+    state.articles = merged;
+    cacheBadge.innerText = result.fromCache ? `${t('list.cache_time_prefix')} ${new Date(result.time).getHours()}:${new Date(result.time).getMinutes().toString().padStart(2,'0')})` : t('list.cache_latest');
+    container.innerHTML = '';
+    state.articles.forEach((art, i) => {
+      const el = document.createElement('div');
+      el.className = `article-card ${art.image?'has-img':''}`;
+      el.innerHTML = `<div class="article-title">${art.title.replace(/</g,'&lt;')}</div><div class="article-meta">${art.date}</div>${art.image ? `<img src="${art.image}" class="article-img-preview" loading="lazy">` : ''}`;
+      el.onclick = () => showArt(i, el);
+      container.appendChild(el);
+    });
+  } catch(e) {
+    container.innerHTML = `<div style="padding:40px;color:#f55"><div>${e.message}</div><button class="btn btn-primary" style="margin-top:10px" onclick="loadFeed(${idx},true)">${t('list.retry')}</button></div>`;
+  }
+}
+function showArt(i, el) {
+  navTo('content');
+  document.querySelectorAll('.article-card').forEach(e=>e.classList.remove('active'));
+  if(el) el.classList.add('active');
+  state.currentArticle = state.articles[i];
+  renderArticleBody(state.currentArticle);
+}
+function renderArticleBody(art) {
+  document.getElementById('placeholder').style.display='none';
+  document.getElementById('articleContent').style.display='block';
+  document.getElementById('artDate').innerText = art.date;
+  document.getElementById('artLink').href = art.link;
+  
+  const summarySec = document.getElementById('aiSummarySection');
+  const bodyEl = document.getElementById('articleBody');
+  const titleEl = document.getElementById('artTitle');
+
+  if (art.aiSummary) { summarySec.style.display = 'block'; document.getElementById('aiSummaryContent').innerHTML = art.aiSummary; } 
+  else { summarySec.style.display = 'none'; }
+
+  if (art.showingTranslation && art.aiTranslation) {
+    bodyEl.innerHTML = art.aiTranslation;
+    titleEl.innerText = art.aiTitleTranslation || art.title;
+    updateTranslateBtnState(true);
+  } else {
+    bodyEl.innerHTML = art.desc;
+    titleEl.innerText = art.title;
+    updateTranslateBtnState(false);
+  }
+  document.querySelector('.article-scroll-area').scrollTop=0;
+}
+function updateTranslateBtnState(isTrans) {
+  const btn = document.getElementById('btnTranslateFull');
+  const span = btn.querySelector('span');
+  if (isTrans) { span.innerText = t('content.toggle_original'); btn.classList.add('active'); } 
+  else { span.innerText = t('toolbar.translate_full'); btn.classList.remove('active'); }
+}
+
+/* ================== Stream Core ================== */
+async function streamAIRequest(sys, user, onChunk, onFinish) {
+  try {
+    const res = await fetch('/simple_chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: "system", content: sys }, { role: "user", content: user }], stream: true })
+    });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); 
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const content = JSON.parse(line).choices?.[0]?.delta?.content || "";
+          if (content) onChunk(content);
+        } catch (e) {}
+      }
+    }
+    if(onFinish) onFinish();
+  } catch (e) { alert(t('toolbar.translate_fail') + ": " + e.message); }
+}
+function cleanMarkdown(text) { return text.replace(/^```html\s*/i, '').replace(/```$/, '').trim(); }
+
+/* ================== Action Logic ================== */
+// [New] 设置工具栏按钮禁用状态
+function setToolbarBusy(isBusy) {
+  const btns = ['btnSummarize', 'btnTranslateFull', 'btnAskAI'];
+  btns.forEach(id => {
+    const btn = document.getElementById(id);
+    if(btn) btn.disabled = isBusy;
+  });
+}
+
+async function actionSummarize(btn) {
+  const art = state.currentArticle;
+  if (!art) return;
+  setToolbarBusy(true); // 禁用按钮
+
+  const summarySec = document.getElementById('aiSummarySection');
+  summarySec.style.display = 'block';
+  document.getElementById('aiSummaryContent').innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${t('content.generating')}`;
+  
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = art.desc;
+  const rawText = tempDiv.innerText.slice(0, 5000);
+  let fullText = "";
+  
+  // [Fix] 明确指定 Target Lang
+  const targetLang = state.settings.targetLang;
+  
+  await streamAIRequest(
+    `Summarize the following article in ${targetLang}. Output PURE HTML (<ul>, <li>, <p>). NO markdown blocks.`, 
+    rawText, 
+    (chunk) => { fullText += chunk; document.getElementById('aiSummaryContent').innerHTML = cleanMarkdown(fullText); }, 
+    async () => { 
+      art.aiSummary = cleanMarkdown(fullText); 
+      await saveArticleMeta(art); 
+      setToolbarBusy(false); // 恢复按钮
+    }
+  );
+}
+
+// 串行翻译 (Title -> Body) 且实时更新 DOM
+async function actionTranslateFull(btn) {
+  const art = state.currentArticle;
+  if (!art) return;
+
+  if (art.showingTranslation) {
+    art.showingTranslation = false;
+    renderArticleBody(art);
+    return;
+  }
+  if (art.aiTranslation && art.aiTitleTranslation) {
+    art.showingTranslation = true;
+    renderArticleBody(art);
+    return;
+  }
+
+  // 1. 准备 UI
+  setToolbarBusy(true); // 禁用按钮
+  updateTranslateBtnState(true);
+  
+  const bodyEl = document.getElementById('articleBody');
+  const titleEl = document.getElementById('artTitle');
+  
+  bodyEl.innerHTML = `<div style="padding:40px;text-align:center;color:var(--accent)"><i class="fa-solid fa-circle-notch fa-spin"></i> ${t('content.generating')}</div>`;
+  
+  // [Fix] 标题 Loading 显示优化，确保 t() 返回值正确
+  const loadingText = t('content.translating_title'); 
+  titleEl.innerHTML = `<span style="color:#999"><i class="fa-solid fa-spinner fa-spin"></i> ${loadingText}</span>`;
+
+  const targetLang = state.settings.targetLang;
+
+  // 2. 翻译标题 (流式更新)
+  let finalTitle = "";
+  await streamAIRequest(
+    `Translate title to ${targetLang}. Return ONLY text. No quotes.`,
+    art.title,
+    (chunk) => {
+      finalTitle += chunk;
+      titleEl.innerText = finalTitle; 
+    },
+    () => { art.aiTitleTranslation = finalTitle.trim(); }
+  );
+
+  // 3. 翻译正文 (标题翻完后才开始)
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = art.desc;
+  const rawText = tempDiv.innerText.slice(0, 6000);
+
+  let accumulatedHTML = "";
+  let isFirst = true;
+
+  await streamAIRequest(
+    `Translate to ${targetLang}. Keep structure. Output PURE HTML (<p>, <h3>). NO markdown blocks.`,
+    rawText,
+    (chunk) => {
+      if(isFirst) { bodyEl.innerHTML = ""; isFirst = false; }
+      accumulatedHTML += chunk;
+      bodyEl.innerHTML = cleanMarkdown(accumulatedHTML);
+    },
+    () => { art.aiTranslation = cleanMarkdown(accumulatedHTML); }
+  );
+
+  // 4. 全部完成，保存状态并恢复按钮
+  art.showingTranslation = true;
+  await saveArticleMeta(art);
+  setToolbarBusy(false);
+}
+
+async function saveArticleMeta(art) {
+  if (!art.link) return;
+  await dbHelper.put('article_meta', {
+    id: art.link,
+    summary: art.aiSummary || null,
+    translation: art.aiTranslation || null,
+    titleTranslation: art.aiTitleTranslation || null,
+    timestamp: Date.now()
+  });
+}
+
+async function actionTranslateSelection() {
+  const pop = document.getElementById('translatePopup');
+  const bar = document.getElementById('selectionToolbar');
+  pop.style.display = 'block'; pop.style.top = bar.style.top; pop.style.left = bar.style.left; bar.style.display = 'none';
+  const resEl = document.getElementById('translateResult');
+  resEl.innerHTML = '<div class="spinner"></div>';
+  let full = "", first = true;
+  await streamAIRequest(`Translate to ${state.settings.targetLang}.`, window.getSelection().toString().trim(), (c) => {
+    if(first){ resEl.innerHTML=""; first=false; } full+=c; resEl.innerText=full;
+  });
+}
+
+function actionAskAIFull(btn) {
+  if (!state.ws || state.ws.readyState !== WebSocket.OPEN) return alert("WS Disconnected");
+  state.ws.send(JSON.stringify({ type: 'set_user_input', data: { text: `关于《${document.getElementById('artTitle').innerText}》:\n${document.getElementById('articleBody').innerText}` } }));
+  const icon = btn.querySelector('i'); const cls = icon.className; icon.className = 'fa-solid fa-check'; setTimeout(() => icon.className = cls, 1500);
+}
+function actionAskAI() {
+  state.ws.send(JSON.stringify({ type: 'set_user_input', data: { text: `关于《${document.getElementById('artTitle').innerText}》:\n${window.getSelection().toString()}` } }));
+  document.getElementById('selectionToolbar').style.display='none';
+}
+
+/* ================== Utils ================== */
+async function clearCache() {
+  if(confirm(t('alerts.cache_clear_confirm'))) {
+    await dbHelper.clear('feed_cache'); await dbHelper.clear('article_meta');
+    localStorage.removeItem('rss_cache_data'); alert(t('sidebar.cleared')); location.reload();
+  }
+}
+function addFeed() { /* Same as before */ 
+  let url = document.getElementById('feedInput').value.trim();
+  let type = document.getElementById('feedType').value;
+  let name = document.getElementById('feedNameInput').value.trim();
+  if(!url) return;
+  if (url.startsWith('rsshub://')) { type = 'rsshub'; url = url.replace('rsshub://', ''); if(!url.startsWith('/')) url='/'+url; }
+  else if (url.startsWith('/')) type = 'rsshub';
+  if(!name) name = type === 'rsshub' ? url.split('/').filter(p=>p).slice(0,2).join('/') : new URL(url.startsWith('http')?url:'http://'+url).hostname;
+  state.userFeeds.push({ title: name, url, type });
+  saveUserFeeds(); updateAllFeeds(); closeModal('addFeedModal'); loadFeed(state.allFeeds.length-1);
+}
+function delFeed(i, e) {
+  e.stopPropagation();
+  if (state.allFeeds[i].isDefault) return alert(t('alerts.default_locked'));
+  if(confirm(t('alerts.delete_confirm'))) { 
+    state.userFeeds.splice(i - state.defaultFeeds.length, 1);
+    saveUserFeeds(); updateAllFeeds(); 
+    if(state.activeIdx>=i) state.activeIdx=-1;
+    document.getElementById('listContainer').innerHTML = `<div style="padding:40px;color:#999">${t('list.select_tip')}</div>`;
+  }
+}
+function setHub(u) { document.getElementById('rsshubUrl').value = u; }
+function saveUserFeeds() { localStorage.setItem('user_custom_feeds', JSON.stringify(state.userFeeds)); }
+function saveSettings() {
+    state.settings.hub = document.getElementById('rsshubUrl').value.replace(/\/$/, '');
+    state.settings.cacheTime = parseInt(document.getElementById('cacheDuration').value) || 30;
+    state.settings.targetLang = document.getElementById('targetLangSelect').value;
+    localStorage.setItem('rss_hub', state.settings.hub);
+    localStorage.setItem('rss_cache_time', state.settings.cacheTime);
+    localStorage.setItem('rss_target_lang', state.settings.targetLang);
+    closeModal('settingsModal');
+}
+function refreshFeed() { if(state.activeIdx>=0) loadFeed(state.activeIdx, true); }
+function toggleFullScreen() { !document.fullscreenElement ? document.documentElement.requestFullscreen() : document.exitFullscreen(); }
+function initWS() {
+  const p = location.protocol==='https:'?'wss:':'ws:';
+  state.ws = new WebSocket(`${p}//${location.host}/ws`);
+  state.ws.onclose = () => setTimeout(initWS, 3000);
+}
+function handleSelect() {
+  setTimeout(() => {
+    const t = window.getSelection().toString().trim();
+    const bar = document.getElementById('selectionToolbar');
+    if(t) {
+      const r = window.getSelection().getRangeAt(0).getBoundingClientRect();
+      bar.style.display = 'flex';
+      bar.style.top = (r.top - 45 < 0 ? r.bottom + 10 : r.top - 45) + 'px';
+      bar.style.left = Math.max(10, Math.min(window.innerWidth - 110, r.left + r.width/2 - 50)) + 'px';
+    } else bar.style.display = 'none';
+  }, 100);
+}
+function navTo(view) { document.body.setAttribute('data-view', view); }
+function openModal(id) { document.getElementById(id).classList.add('active'); if(id === 'settingsModal') { document.getElementById('rsshubUrl').value = state.settings.hub; document.getElementById('cacheDuration').value = state.settings.cacheTime; document.getElementById('targetLangSelect').value = state.settings.targetLang; } if(id === 'addFeedModal') { document.getElementById('feedInput').value = ''; document.getElementById('feedNameInput').value = ''; }}
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.addEventListener('click', e => {
+  const l = e.target.closest('a');
+  if (l && l.href && l.href.startsWith('http')) l.target = '_blank';
+}, true);
+</script>
+</body>
+</html>

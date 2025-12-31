@@ -1,0 +1,22 @@
+[
+  { 
+    "title": {"zh": "GitHub 官方博客", "en": "GitHub Blog"}, 
+    "url": "https://github.blog/feed", 
+    "type": "url" 
+  },
+  {
+    "title": {"zh": "Linux.do 最新话题", "en": "Linux.do Latest"}, 
+    "url": "https://linux.do/latest.rss", 
+    "type": "url"
+  },
+  {
+    "title": {"zh": "阮一峰的网络日志", "en": "Ruan YiFeng's Blog"},
+    "url": "http://www.ruanyifeng.com/blog/atom.xml",
+    "type": "url"
+  },
+  {
+    "title": {"zh": "V2EX (技术社区)", "en": "V2EX"},
+    "url": "https://www.v2ex.com/index.xml",
+    "type": "url"
+  }
+]
