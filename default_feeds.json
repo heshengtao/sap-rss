@@ -1,0 +1,37 @@
+[
+  { 
+    "title": {"zh": "GitHub 官方博客", "en": "GitHub Blog"}, 
+    "url": "https://github.blog/feed", 
+    "type": "url" 
+  },
+  {
+    "title": {"zh": "Linux.do 最新话题", "en": "Linux.do Latest"}, 
+    "url": "https://linux.do/latest.rss", 
+    "type": "url"
+  },
+  {
+    "title": {"zh": "阮一峰的网络日志", "en": "Ruan YiFeng's Blog"},
+    "url": "http://www.ruanyifeng.com/blog/atom.xml",
+    "type": "url"
+  },
+  {
+    "title": {"zh": "小众软件", "en": "Appinn"},
+    "url": "https://www.appinn.com/feed/",
+    "type": "url"
+  },
+  {
+    "title": {"zh": "V2EX (技术社区)", "en": "V2EX"},
+    "url": "https://www.v2ex.com/index.xml",
+    "type": "url"
+  },
+  {
+    "title": {"zh": "The Verge (科技新闻)", "en": "The Verge"},
+    "url": "https://www.theverge.com/rss/index.xml",
+    "type": "url"
+  },
+  {
+    "title": {"zh": "Smashing Magazine (前端与设计)", "en": "Smashing Magazine"},
+    "url": "https://www.smashingmagazine.com/feed/",
+    "type": "url"
+  }
+]

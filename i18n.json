@@ -1,0 +1,102 @@
+{
+  "zh": {
+    "sidebar": {
+      "title": "我的订阅",
+      "loading": "正在加载订阅源..."
+    },
+    "list": {
+      "title_default": "文章列表",
+      "select_tip": "请选择左侧订阅源",
+      "cache_latest": "(最新)",
+      "cache_time_prefix": "(缓存",
+      "loading": "正在加载...",
+      "retry": "重试",
+      "error_backend": "后端错误",
+      "error_xml": "XML 解析失败",
+      "error_empty": "源内容为空"
+    },
+    "content": {
+      "placeholder_text": "选择文章开始阅读",
+      "read_original": "阅读原文"
+    },
+    "toolbar": {
+      "translate": "翻译",
+      "ask_ai": "问 AI",
+      "ask_full_ai": "全文问 AI", 
+      "translate_result": "翻译结果",
+      "translate_fail": "翻译失败",
+      "sent_success": "已发送"
+    },
+    "modals": {
+      "add_title": "添加订阅",
+      "url_label": "URL / 路由",
+      "type_label": "类型",
+      "type_rsshub": "RSSHub 路由",
+      "type_url": "普通 RSS URL",
+      "recommend_label": "热门推荐 (点击自动填入)",
+      "btn_cancel": "取消",
+      "btn_confirm": "确认添加",
+      "settings_title": "全局设置",
+      "hub_label": "RSSHub 实例地址",
+      "cache_label": "缓存有效期 (分钟)",
+      "cache_desc": "间隔内再次点击不会消耗流量，直接加载本地数据。<br>点击“刷新”按钮可强制更新。",
+      "lang_label": "界面语言 / Interface Language",
+      "target_lang_label": "AI 翻译目标语言 / Target Language",
+      "btn_save": "保存配置"
+    },
+    "alerts": {
+      "delete_confirm": "删除",
+      "default_locked": "默认源不可删除"
+    }
+  },
+  "en": {
+    "sidebar": {
+      "title": "My Feeds",
+      "loading": "Loading feeds..."
+    },
+    "list": {
+      "title_default": "Article List",
+      "select_tip": "Select a feed to view",
+      "cache_latest": "(Latest)",
+      "cache_time_prefix": "(Cached",
+      "loading": "Loading...",
+      "retry": "Retry",
+      "error_backend": "Backend Error",
+      "error_xml": "XML Parse Error",
+      "error_empty": "Feed is empty"
+    },
+    "content": {
+      "placeholder_text": "Select an article to read",
+      "read_original": "Read Original"
+    },
+    "toolbar": {
+      "translate": "Translate",
+      "ask_ai": "Ask AI",
+      "ask_full_ai": "Ask AI (Full Text)", 
+      "translate_result": "Translation",
+      "translate_fail": "Failed",
+      "sent_success": "Sent"
+    },
+    "modals": {
+      "add_title": "Add Feed",
+      "url_label": "URL / Route",
+      "type_label": "Type",
+      "type_rsshub": "RSSHub Route",
+      "type_url": "Standard RSS URL",
+      "recommend_label": "Hot Picks (Click to fill)",
+      "btn_cancel": "Cancel",
+      "btn_confirm": "Confirm",
+      "settings_title": "Settings",
+      "hub_label": "RSSHub Instance",
+      "cache_label": "Cache Duration (min)",
+      "cache_desc": "Data loads locally within this interval.<br>Click 'Refresh' to force update.",
+      "lang_label": "Interface Language / 界面语言",
+      "target_lang_label": "AI Translation Target / 目标语言",
+      "btn_save": "Save Config"
+    },
+    "alerts": {
+      "delete_confirm": "Delete",
+      "default_locked": "Default feed cannot be deleted"
+    }
+  }
+}
