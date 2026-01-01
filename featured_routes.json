@@ -43,11 +43,6 @@
     "category": "编程与开发 (Dev)",
     "routes": [
       {
-        "name": "Hack News - Top Stories",
-        "path": "/hackernews/news",
-        "desc": "Hacker News 热门讨论。"
-      },
-      {
         "name": "掘金 - 前端热门",
         "path": "/juejin/category/frontend",
         "desc": "稀土掘金前端板块热门文章。"

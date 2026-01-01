@@ -13,5 +13,10 @@
     "title": {"zh": "V2EX (技术社区)", "en": "V2EX"},
     "url": "https://www.v2ex.com/index.xml",
     "type": "url"
+  },
+  {
+    "title": {"zh": "Pixiv (日本插画社区)", "en": "Pixiv"},
+    "url": "http://pixiv.net.cn/feed",
+    "type": "url"
   }
 ]
