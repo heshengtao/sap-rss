@@ -257,7 +257,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
   position: relative;
   /* 关键修复：布局隔离，告诉浏览器该元素的布局变化不会影响外部 */
   contain: layout style paint; 
-  
   border-left: 3px solid var(--accent); 
   padding-left: 12px; 
   margin-left: -15px;
@@ -265,7 +264,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
   /* 优化文本渲染速度 */
   text-rendering: optimizeSpeed; 
 }
-
 /* 翻译完成后移除特殊样式 */
 [data-translated="true"] {
   border-left: 3px solid transparent;
@@ -274,7 +272,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
   /* 翻译完成后移除 contain 以恢复正常流交互（如复制选区等），也可以保留 */
   contain: none; 
 }
-
 /* 翻译过程中的微动画 */
 @keyframes translate-pulse {
   0% { border-left-color: rgba(255, 107, 53, 0.4); }
@@ -284,7 +281,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 [data-translating="true"] {
   animation: translate-pulse 1.5s infinite;
 }
-
 /* 淡入效果 */
 .trans-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
@@ -467,7 +463,7 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
       <label data-i18n="modals.cache_label">缓存有效期 (分钟)</label>
       <input type="number" id="cacheDuration" min="1" value="30">
       <div style="font-size:12px;color:#999;margin-top:5px" data-i18n="modals.cache_desc">
-        间隔内再次点击不会消耗流量，直接加载本地数据。<br>点击“刷新”按钮可强制更新。
+        间隔内再次点击不会消耗流量，直接加载本地数据。<br>点击"刷新"按钮可强制更新。
       </div>
     </div>
     <div style="display:flex;justify-content:flex-end;gap:10px">
@@ -999,6 +995,7 @@ function setToolbarBusy(isBusy) {
     if(btn) btn.disabled = isBusy;
   });
 }
+// ================== 修改：使用 markdown-it 渲染总结 ==================
 async function actionSummarize(btn) {
   const art = state.currentArticle;
   if (!art) return;
@@ -1008,15 +1005,42 @@ async function actionSummarize(btn) {
   document.getElementById('aiSummaryContent').innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${t('content.generating')}`;
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = art.desc;
-  const rawText = tempDiv.innerText.slice(0, 5000);
+  const rawText = tempDiv.innerText.replace(/\s+/g, '\n').slice(0, 10000);
   let fullText = "";
   const targetLang = state.settings.targetLang;
+  // 初始化 markdown-it 实例
+  const md = window.markdownit({
+      html: true,
+      linkify: true,
+      breaks: true
+  });
+  // 注册容器插件 (Tip, Warning, Danger)
+  if (typeof window.markdownitContainer !== 'undefined') {
+      const registerContainer = (name, title) => {
+          md.use(window.markdownitContainer, name, {
+              render: function (tokens, idx) {
+                  if (tokens[idx].nesting === 1) {
+                      return `<div class="admonition ${name}"><span class="admonition-title">${title}</span>`;
+                  } else {
+                      return '</div>\n';
+                  }
+              }
+          });
+      };
+      registerContainer('tip', '提示 / Tip');
+      registerContainer('warning', '注意 / Warning');
+      registerContainer('danger', '警告 / Danger');
+  }
   await streamAIRequest(
-    `Summarize the following article in ${targetLang}. Output PURE HTML (<ul>, <li>, <p>). NO markdown blocks.`, 
+    `Summarize the following article in ${targetLang}. Output in Markdown format. Use lists for points. Use headings for structure.`, 
     rawText, 
-    (chunk) => { fullText += chunk; document.getElementById('aiSummaryContent').innerHTML = cleanMarkdown(fullText); }, 
+    (chunk) => { 
+      fullText += chunk; 
+      // 使用 md.render 替代 cleanMarkdown
+      document.getElementById('aiSummaryContent').innerHTML = md.render(fullText); 
+    }, 
     async () => { 
-      art.aiSummary = cleanMarkdown(fullText); 
+      art.aiSummary = md.render(fullText); 
       await saveArticleMeta(art); 
       setToolbarBusy(false);
     }
@@ -1069,24 +1093,19 @@ async function translateArticleContent(contentEl, targetLang) {
  */
 async function translateBlock(task, targetLang) {
   const { blockElement, textNodes, originalText } = task;
-  
   // 标记状态
   blockElement.setAttribute('data-translating', 'true');
-  
   let currentTranslation = "";
   const firstTextNode = textNodes[0];
   let rafId = null; // 用于 requestAnimationFrame 的 ID
   let isFirstChunk = true; // 标记是否是第一段流
-
   // 为了保持结构（如图片），我们将翻译结果流式填充到第一个文本节点
   // 策略：延迟清理后续文本节点，直到第一段翻译到来，防止高度瞬间坍缩
-
   await streamAIRequest(
     `Translate the following text to ${targetLang}. Return ONLY the translated text. Do not include any markdown or HTML tags. Keep it natural.`,
     originalText,
     (chunk) => {
       currentTranslation += chunk;
-
       // === 关键修复：使用 requestAnimationFrame 节流 DOM 更新 ===
       if (!rafId) {
         rafId = requestAnimationFrame(() => {
@@ -1097,7 +1116,6 @@ async function translateBlock(task, targetLang) {
             }
             isFirstChunk = false;
           }
-
           // 更新第一个节点的文本
           firstTextNode.textContent = currentTranslation;
           rafId = null; // 重置 ID，允许下一次请求
@@ -1107,21 +1125,17 @@ async function translateBlock(task, targetLang) {
     () => {
       // 完成后
       if (rafId) cancelAnimationFrame(rafId); // 取消可能存在的最后一帧请求
-      
       // 确保最后一次更新被应用
       firstTextNode.textContent = currentTranslation;
       for (let i = 1; i < textNodes.length; i++) textNodes[i].textContent = "";
-
       blockElement.removeAttribute('data-translating');
       blockElement.setAttribute('data-translated', 'true');
-      
       // 添加淡入动画类，稍后移除
       blockElement.classList.add('trans-fade-in');
       setTimeout(() => blockElement.classList.remove('trans-fade-in'), 500);
     }
   );
 }
-
 // ================== 修改：actionTranslateFull 函数 ==================
 async function actionTranslateFull(btn) {
   const art = state.currentArticle;
