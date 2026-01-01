@@ -7,12 +7,10 @@
 <title>AI RSS Reader Pro</title>
 <!-- 引入 FontAwesome -->
 <link rel="stylesheet" href="../../fontawesome/css/all.min.css">
-
 <!-- [Lib] 引入 markdown-it 核心库 -->
 <script src="../../libs/markdown-it.min.js"></script>
 <!-- [Lib] 引入 markdown-it-container 插件 (用于支持 ::: tip 语法) -->
 <script src="../../libs/markdown-it-container.min.js"></script>
-
 <style>
 /* ================== 基础样式 ================== */
 :root {
@@ -21,7 +19,6 @@
   --accent: #ff6b35; --hover: #f0f0f0; --header-h: 54px;
   --ai-summary-bg: #f8fbff; --ai-summary-border: #dbeafe;
   --ai-text-color: #1e3a8a;
-  
   /* Admonition Colors */
   --admonition-tip-border: #42b983;
   --admonition-tip-bg: #f3f5f7;
@@ -32,13 +29,11 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
 body { height: 100vh; display: flex; overflow: hidden; color: var(--text-main); background: #fff; }
-
 /* 布局 */
 .layout-col { height: 100%; overflow-y: auto; display: flex; flex-direction: column; }
 #sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); flex-shrink: 0; z-index: 3; }
 #articleList { width: 350px; background: var(--bg-list); border-right: 1px solid var(--border); flex-shrink: 0; z-index: 2; }
 #contentView { flex: 1; background: var(--bg-content); position: relative; z-index: 1; scroll-behavior: smooth; }
-
 /* 顶部栏 */
 .header-bar {
 height: var(--header-h); padding: 0 15px; border-bottom: 1px solid var(--border);
@@ -46,7 +41,6 @@ display: flex; align-items: center; justify-content: space-between;
 background: rgba(255,255,255,0.95); backdrop-filter: blur(5px);
 position: sticky; top: 0; z-index: 10; font-weight: 600; font-size: 15px; flex-shrink: 0; 
 }
-
 /* Tooltip 样式 (无 Title 属性) */
 [data-tooltip] { position: relative; }
 [data-tooltip]::after {
@@ -61,10 +55,8 @@ position: sticky; top: 0; z-index: 10; font-weight: 600; font-size: 15px; flex-s
 }
 [data-tooltip]:hover::after { opacity: 1; }
 .bottom-tooltip[data-tooltip]::after { bottom: auto; top: -34px; }
-
 .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-sub); font-size: 16px; padding: 8px; border-radius: 6px; transition: .2s; display: flex; align-items: center; justify-content: center;}
 .btn-icon:hover { color: var(--accent); background: rgba(0,0,0,0.05); }
-
 /* 操作栏按钮组 */
 .toolbar-group { display: flex; gap: 8px; align-items: center; }
 .btn-toolbar {
@@ -77,7 +69,6 @@ position: sticky; top: 0; z-index: 10; font-weight: 600; font-size: 15px; flex-s
 .btn-toolbar.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .btn-toolbar:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 .btn-toolbar i { font-size: 14px; }
-
 /* 订阅列表项 */
 .feed-item {
 padding: 10px 12px; margin: 4px 10px; border-radius: 6px; cursor: pointer;
@@ -88,7 +79,6 @@ transition: background .2s;
 .feed-item.active { background: #e6e6e6; font-weight: 600; }
 .feed-icon { width: 16px; height: 16px; border-radius: 3px; object-fit: cover; flex-shrink: 0; }
 .feed-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 20px; }
-
 .btn-delete {
 position: absolute; right: 5px; opacity: 0; color: #999; border:none;
 background:none; cursor:pointer; padding: 4px; transition: opacity .2s; z-index: 2;
@@ -96,7 +86,6 @@ background:none; cursor:pointer; padding: 4px; transition: opacity .2s; z-index:
 .feed-item:hover .btn-delete { opacity: 1; }
 .btn-delete:hover { color: #ff4d4f; }
 .icon-locked { position: absolute; right: 8px; color: #ccc; font-size: 12px; opacity: 0.5; }
-
 /* 文章卡片 */
 .article-card { padding: 18px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .2s; }
 .article-card:hover { background: var(--hover); }
@@ -105,7 +94,6 @@ background:none; cursor:pointer; padding: 4px; transition: opacity .2s; z-index:
 .article-meta { font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between; }
 .article-img-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-top: 8px; display: none; }
 .article-card.has-img .article-img-preview { display: block; }
-
 /* 文章详情 */
 .article-scroll-area { padding: 30px 40px; height: calc(100% - var(--header-h)); overflow-y: auto; }
 #articleHeader { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
@@ -114,7 +102,6 @@ background:none; cursor:pointer; padding: 4px; transition: opacity .2s; z-index:
 #articleBody img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; display: block; }
 #articleBody a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
 #placeholder { height: 100%; display: flex; align-items: center; justify-content: center; color: #999; flex-direction: column; gap: 15px; }
-
 /* AI 总结区域 */
 #aiSummarySection {
   background: var(--ai-summary-bg);
@@ -134,7 +121,6 @@ background:none; cursor:pointer; padding: 4px; transition: opacity .2s; z-index:
 #aiSummaryContent ul, #aiSummaryContent ol { margin-left: 20px; margin-bottom: 10px; }
 #aiSummaryContent p { margin-bottom: 10px; }
 #aiSummaryContent strong { color: #000; }
-
 /* 移动端适配 */
 @media (max-width: 768px) {
 body { position: relative; }
@@ -152,7 +138,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 .btn-toolbar span { display: none; } 
 }
 @media (min-width: 769px) { .mobile-show { display: none; } }
-
 /* 模态框通用 */
 .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal.active { display: flex; }
@@ -183,7 +168,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .tag-btn { font-size: 12px; padding: 4px 8px; background: #eee; border-radius: 4px; cursor: pointer; color: #555; }
 .tag-btn:hover { background: #e0e0e0; color: #000; }
-
 /* 探索器模态框特有样式 */
 .explorer-container { display: flex; border: 1px solid #eee; height: 400px; border-radius: 6px; overflow: hidden; }
 .explorer-side { width: 35%; border-right: 1px solid #eee; background: #f9f9f9; overflow-y: auto; }
@@ -194,7 +178,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 .ns-item.special-item { background: #fff8f0; color: #d35400; font-weight: 600; border-bottom: 1px dashed #e0e0e0; }
 .ns-item.special-item:hover { background: #ffe0d0; }
 .ns-item.special-item.active { background: #ffebd9; border-left-color: #d35400; }
-
 /* 路由列表与详情样式 */
 .route-item { 
   padding: 10px 12px; 
@@ -209,7 +192,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 .route-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
 .route-title { font-weight: 600; color: #333; }
 .route-path-preview { color: #888; font-size: 12px; margin-top: 4px; font-family: monospace; }
-
 .route-details { 
   display: none; 
   margin-top: 10px; 
@@ -232,7 +214,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
   top: 0;
   z-index: 5;
 }
-
 /* Markdown 渲染样式 */
 .md-content { font-size: 13px; line-height: 1.5; color: #444; margin-bottom: 10px; }
 .md-content table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 12px; background: #fff; }
@@ -241,7 +222,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 .md-content a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
 .md-content code { background: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-family: monospace; font-size: 12px; color: #d63384; }
 .md-content p { margin-bottom: 8px; }
-
 /* [New] Admonition (::: tip) 样式 */
 .admonition { margin: 10px 0; padding: 12px 16px; border-left: 4px solid #ccc; background-color: #fafafa; border-radius: 4px; }
 .admonition .admonition-title { font-weight: bold; margin-bottom: 6px; display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -254,20 +234,17 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 /* Danger */
 .admonition.danger { border-color: var(--admonition-danger-border); background-color: var(--admonition-danger-bg); }
 .admonition.danger .admonition-title { color: #900; }
-
 /* 参数表格样式 */
 .param-table { width: 100%; border-collapse: collapse; margin: 8px 0; background: #fff; border: 1px solid #eee; }
 .param-table th, .param-table td { border: 1px solid #eee; padding: 6px; text-align: left; vertical-align: top; }
 .param-table th { background: #fafafa; font-weight: 600; width: 30%; color: #444; }
 .param-badge { display: inline-block; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; margin-right: 5px; }
-
 .use-btn { 
   background: var(--accent); color: #fff; border: none; 
   padding: 6px 12px; border-radius: 4px; cursor: pointer; 
   font-size: 12px; margin-top: 8px; float: right; 
 }
 .use-btn:hover { opacity: 0.9; }
-
 /* 悬浮工具与 Loading */
 #selectionToolbar { position: fixed; display: none; z-index: 2000; background: #222; color: #fff; border-radius: 6px; padding: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 #selectionToolbar button { background: none; border: none; color: #fff; padding: 4px 10px; cursor: pointer; display: flex; gap: 6px; align-items: center; font-size: 13px; }
@@ -275,13 +252,51 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 .spinner { width: 24px; height: 24px; border: 3px solid #eee; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .cache-badge { font-size: 12px; color: #aaa; margin-left: 5px; font-weight: normal; }
-</style>
+/* ================== 新增：翻译样式 ================== */
+[data-translating="true"] {
+  position: relative;
+  /* 关键修复：布局隔离，告诉浏览器该元素的布局变化不会影响外部 */
+  contain: layout style paint; 
+  
+  border-left: 3px solid var(--accent); 
+  padding-left: 12px; 
+  margin-left: -15px;
+  transition: all 0.3s ease;
+  /* 优化文本渲染速度 */
+  text-rendering: optimizeSpeed; 
+}
 
+/* 翻译完成后移除特殊样式 */
+[data-translated="true"] {
+  border-left: 3px solid transparent;
+  padding-left: 12px;
+  margin-left: -15px;
+  /* 翻译完成后移除 contain 以恢复正常流交互（如复制选区等），也可以保留 */
+  contain: none; 
+}
+
+/* 翻译过程中的微动画 */
+@keyframes translate-pulse {
+  0% { border-left-color: rgba(255, 107, 53, 0.4); }
+  50% { border-left-color: rgba(255, 107, 53, 1); }
+  100% { border-left-color: rgba(255, 107, 53, 0.4); }
+}
+[data-translating="true"] {
+  animation: translate-pulse 1.5s infinite;
+}
+
+/* 淡入效果 */
+.trans-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
 </head>
 <body data-view="sidebar">
-
 <!-- 1. 订阅列表 -->
-
 <div id="sidebar" class="layout-col">
   <div class="header-bar">
     <span data-i18n="sidebar.title">我的订阅</span>
@@ -296,9 +311,7 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
   <div id="feedList"></div>
   <div id="loadingTips" style="text-align:center; padding:20px; color:#999; font-size:13px; display:none;" data-i18n="sidebar.loading">正在加载订阅源...</div>
 </div>
-
 <!-- 2. 文章列表 -->
-
 <div id="articleList" class="layout-col">
   <div class="header-bar">
     <div style="display:flex; align-items:center; gap:5px; overflow:hidden;">
@@ -312,36 +325,28 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
     请选择左侧订阅源
   </div>
 </div>
-
 <!-- 3. 文章详情 -->
-
 <div id="contentView" class="layout-col">
   <div class="header-bar">
     <button class="btn-icon mobile-show" onclick="navTo('list')"><i class="fa-solid fa-chevron-left"></i></button>
-    
     <div style="flex:1"></div>
-    
     <!-- AI 功能区 -->
     <div class="toolbar-group">
       <button class="btn-toolbar" id="btnSummarize" onclick="actionSummarize(this)" data-tooltip="toolbar.tip_summarize">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span data-i18n="toolbar.summarize">全文总结</span>
       </button>
-
       <button class="btn-toolbar" id="btnTranslateFull" onclick="actionTranslateFull(this)" data-tooltip="toolbar.tip_translate">
         <i class="fa-solid fa-language"></i>
         <span data-i18n="toolbar.translate_full">全文翻译</span>
       </button>
-
       <button class="btn-toolbar" id="btnAskAI" onclick="actionAskAIFull(this)" data-tooltip="toolbar.tip_ask">
         <i class="fa-solid fa-robot"></i>
         <span data-i18n="toolbar.ask_full_ai">全文问AI</span>
       </button>
     </div>
-
     <button class="btn-icon mobile-hide" onclick="toggleFullScreen()" data-tooltip="content.fullscreen"><i class="fa-solid fa-expand"></i></button>
   </div>
-  
   <div class="article-scroll-area">
     <div id="placeholder">
       <i class="fa-solid fa-book-open" style="font-size:48px;opacity:0.3"></i>
@@ -355,20 +360,16 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
           <a id="artLink" target="_blank"><span data-i18n="content.read_original">阅读原文</span> <i class="fa-solid fa-external-link-alt"></i></a>
         </div>
       </div>
-      
       <!-- AI 总结展示区 -->
       <div id="aiSummarySection">
         <div class="summary-header"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="content.summary_title">AI 智能总结</span></div>
         <div id="aiSummaryContent"></div>
       </div>
-
       <div id="articleBody"></div>
     </div>
   </div>
 </div>
-
 <!-- 悬浮工具 -->
-
 <div id="selectionToolbar">
   <button onclick="actionTranslateSelection()"><i class="fa-solid fa-language"></i> <span data-i18n="toolbar.translate">翻译</span></button>
   <div style="width:1px;background:#555;height:14px;margin:0 2px"></div>
@@ -380,9 +381,7 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
   </div>
   <div id="translateResult"></div>
 </div>
-
 <!-- 添加订阅 Modal -->
-
 <div id="addFeedModal" class="modal">
   <div class="modal-box">
     <div class="modal-header"><span data-i18n="modals.add_title">添加订阅</span> <span onclick="closeModal('addFeedModal')" style="cursor:pointer">&times;</span></div>
@@ -391,7 +390,7 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
     </div>
     <div class="form-group">
       <label data-i18n="modals.name_label">订阅名称 (可选)</label>
-      <input type="text" id="feedNameInput" placeholder="留空则自动生成 (e.g. URSB Blog)">
+      <input type="text" id="feedNameInput" placeholder="留空则自动生成">
     </div>
     <div class="form-group"><label data-i18n="modals.type_label">类型</label>
       <select id="feedType">
@@ -405,7 +404,6 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
     </div>
   </div>
 </div>
-
 <!-- RSSHub Explorer Modal -->
 <div id="exploreModal" class="modal">
   <div class="modal-box" style="max-width: 600px;">
@@ -431,9 +429,7 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
     </div>
   </div>
 </div>
-
 <!-- 设置 Modal -->
-
 <div id="settingsModal" class="modal">
   <div class="modal-box">
     <div class="modal-header"><span data-i18n="modals.settings_title">全局设置</span> <span onclick="closeModal('settingsModal')" style="cursor:pointer">&times;</span></div>
@@ -447,8 +443,8 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
     <div class="form-group">
       <label data-i18n="modals.target_lang_label">AI 翻译目标语言 / Target Language</label>
       <select id="targetLangSelect">
-        <option value="Simplified Chinese">简体中文 (Simplified Chinese)</option>
-        <option value="Traditional Chinese">繁体中文 (Traditional Chinese)</option>
+        <option value="Simplified Chinese">简体中文</option>
+        <option value="Traditional Chinese">繁体中文</option>
         <option value="English">English</option>
         <option value="Japanese">Japanese</option>
         <option value="Korean">Korean</option>
@@ -479,12 +475,10 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
     </div>
   </div>
 </div>
-
 <script>
 /* ================== DB Helper (IndexedDB) ================== */
 const DB_NAME = 'RSS_Reader_DB';
 const DB_VERSION = 1;
-
 const dbHelper = {
   db: null,
   async open() {
@@ -525,7 +519,6 @@ const dbHelper = {
     });
   }
 };
-
 /* ================== 配置与状态 ================== */
 const CONFIG = { defaultHub: "https://rsshub.ktachibana.party", defaultCacheTime: 30, defaultLang: "zh" };
 let state = {
@@ -541,7 +534,6 @@ let state = {
   namespaces: [], currentNs: null, featuredData: null
 };
 if (!['zh', 'en'].includes(state.settings.lang)) state.settings.lang = 'zh';
-
 /* ================== 初始化 ================== */
 document.addEventListener('DOMContentLoaded', async () => {
   initWS();
@@ -564,7 +556,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
-
 /* ================== I18n Logic ================== */
 async function initI18n() {
   try {
@@ -589,7 +580,6 @@ function updateUI() {
   document.querySelectorAll('[data-tooltip]').forEach(el => {
     el.setAttribute('data-tooltip-text', t(el.getAttribute('data-tooltip')));
   });
-
   if (state.activeIdx === -1) {
     document.getElementById('currentFeedTitle').innerText = t('list.title_default');
     document.getElementById('listContainer').innerText = t('list.select_tip');
@@ -611,7 +601,6 @@ function changeLanguage(lang) {
   updateUI();
   if(state.currentArticle) renderArticleBody(state.currentArticle);
 }
-
 /* ================== Feed & Cache ================== */
 async function initFeeds() {
   const loadingEl = document.getElementById('loadingTips');
@@ -636,26 +625,21 @@ async function fetchRSS(feed, force) {
   let url = feed.url;
   // 构建完整 RSSHub URL
   if(feed.type === 'rsshub') url = url.startsWith('/') ? state.settings.hub.replace(/\/$/, '') + url : state.settings.hub.replace(/\/$/, '') + '/' + url;
-  
   const cacheKey = url;
   const cached = await dbHelper.get('feed_cache', cacheKey);
   const now = Date.now();
   if (!force && cached && (now - cached.time < state.settings.cacheTime * 60000)) {
     return { data: cached.data, fromCache: true, time: cached.time };
   }
-  
   // 使用通用 extension_proxy 代理
   const res = await fetch(`/extension_proxy?url=${encodeURIComponent(url)}`);
   if(!res.ok) throw new Error(`${t('list.error_backend')} ${res.status}`);
-  
   const text = await res.text();
   const xml = new DOMParser().parseFromString(text, "text/xml");
   if(xml.querySelector("parsererror")) throw new Error(t('list.error_xml'));
-
   let items = Array.from(xml.querySelectorAll("item"));
   if(!items.length) items = Array.from(xml.querySelectorAll("entry"));
   if(!items.length) throw new Error(t('list.error_empty'));
-
   const parsedItems = items.map(item => {
     const get = (t) => { const el = item.getElementsByTagName(t)[0]; return el ? el.textContent.trim() : ""; };
     const getLink = () => { const el = item.getElementsByTagName("link")[0]; return el ? (el.getAttribute("href") || el.textContent.trim()) : ""; }
@@ -669,7 +653,6 @@ async function fetchRSS(feed, force) {
   await dbHelper.put('feed_cache', { url: cacheKey, time: now, data: parsedItems });
   return { data: parsedItems, fromCache: false, time: now };
 }
-
 /* ================== UI Render Functions ================== */
 function renderSidebar() {
   const list = document.getElementById('feedList');
@@ -692,7 +675,6 @@ async function loadFeed(idx, force=false) {
   document.getElementById('currentFeedTitle').innerText = getTrTitle(state.allFeeds[idx].title);
   cacheBadge.innerText = "";
   container.innerHTML = `<div class="spinner" style="margin-top:50px"></div><div style="margin-top:10px;color:#999;font-size:12px">${t('list.loading')}</div>`;
-
   try {
     const result = await fetchRSS(state.allFeeds[idx], force);
     const merged = await Promise.all(result.data.map(async (art) => {
@@ -726,14 +708,11 @@ function renderArticleBody(art) {
   document.getElementById('articleContent').style.display='block';
   document.getElementById('artDate').innerText = art.date;
   document.getElementById('artLink').href = art.link;
-  
   const summarySec = document.getElementById('aiSummarySection');
   const bodyEl = document.getElementById('articleBody');
   const titleEl = document.getElementById('artTitle');
-
   if (art.aiSummary) { summarySec.style.display = 'block'; document.getElementById('aiSummaryContent').innerHTML = art.aiSummary; } 
   else { summarySec.style.display = 'none'; }
-
   if (art.showingTranslation && art.aiTranslation) {
     bodyEl.innerHTML = art.aiTranslation;
     titleEl.innerText = art.aiTitleTranslation || art.title;
@@ -751,42 +730,34 @@ function updateTranslateBtnState(isTrans) {
   if (isTrans) { span.innerText = t('content.toggle_original'); btn.classList.add('active'); } 
   else { span.innerText = t('toolbar.translate_full'); btn.classList.remove('active'); }
 }
-
 /* ================== RSSHub Explorer Logic ================== */
 async function loadNamespaces() {
   const listEl = document.getElementById('nsList');
   listEl.innerHTML = `<div style="text-align:center; padding:20px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i></div>`;
-  
   try {
     const hub = state.settings.hub.replace(/\/$/, '');
     const url = `${hub}/api/namespace`;
     // Use generic proxy for JSON API
     const res = await fetch(`/extension_proxy?url=${encodeURIComponent(url)}`, { headers: { 'Accept': 'application/json' }});
     if(!res.ok) throw new Error("API Error");
-    
     const data = await res.json();
     state.namespaces = Object.keys(data).sort(); // data is object like { bilibili: ..., weibo: ... } or list
     if(Array.isArray(data)) state.namespaces = data.sort();
-
     renderNamespaces();
   } catch(e) {
     listEl.innerHTML = `<div style="padding:10px; color:red; font-size:12px;">Load Failed: ${e.message}<br>Check RSSHub URL in settings.</div>`;
   }
 }
-
 function renderNamespaces(filterText = "") {
   const listEl = document.getElementById('nsList');
   listEl.innerHTML = "";
-  
   // Always render the Featured button at the top
   const featuredDiv = document.createElement('div');
   featuredDiv.className = `ns-item special-item ${state.currentNs === 'FEATURED_HOME' ? 'active' : ''}`;
-  featuredDiv.innerHTML = '<i class="fa-solid fa-fire"></i> 热门推荐 (Featured)';
+  featuredDiv.innerHTML = '<i class="fa-solid fa-fire"></i> 热门推荐';
   featuredDiv.onclick = () => loadFeatured();
   listEl.appendChild(featuredDiv);
-
   const filtered = state.namespaces.filter(ns => ns.toLowerCase().includes(filterText.toLowerCase()));
-  
   filtered.forEach(ns => {
     const div = document.createElement('div');
     div.className = `ns-item ${state.currentNs === ns ? 'active' : ''}`;
@@ -795,20 +766,16 @@ function renderNamespaces(filterText = "") {
     listEl.appendChild(div);
   });
 }
-
 function filterNamespaces() {
   const val = document.getElementById('nsFilter').value;
   renderNamespaces(val);
 }
-
 // 加载热门推荐 JSON
 async function loadFeatured() {
   state.currentNs = 'FEATURED_HOME';
   renderNamespaces(document.getElementById('nsFilter').value); // Re-render sidebar to highlight "Featured"
-  
   const routeListEl = document.getElementById('routeList');
   routeListEl.innerHTML = `<div style="text-align:center; padding:50px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i> Loading featured routes...</div>`;
-
   if (!state.featuredData) {
     try {
       const res = await fetch('./featured_routes.json');
@@ -819,26 +786,21 @@ async function loadFeatured() {
       return;
     }
   }
-  
   renderFeaturedView();
 }
-
 function renderFeaturedView() {
   const routeListEl = document.getElementById('routeList');
   routeListEl.innerHTML = "";
-
   if (!state.featuredData || !state.featuredData.length) {
     routeListEl.innerHTML = `<div style="padding:20px; color:#999">No featured routes defined.</div>`;
     return;
   }
-
   state.featuredData.forEach(group => {
     // 渲染分组标题
     const groupTitle = document.createElement('div');
     groupTitle.className = 'featured-group-title';
     groupTitle.innerText = group.category;
     routeListEl.appendChild(groupTitle);
-
     // 渲染组内路由
     group.routes.forEach(route => {
        const div = document.createElement('div');
@@ -864,41 +826,33 @@ function renderFeaturedView() {
     });
   });
 }
-
 // 支持 Markdown-it + Container 渲染和路径拼接
 async function loadRoutes(ns) {
   state.currentNs = ns;
   renderNamespaces(document.getElementById('nsFilter').value);
-  
   const routeListEl = document.getElementById('routeList');
   routeListEl.innerHTML = `<div style="text-align:center; padding:50px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i> Loading routes...</div>`;
-  
   try {
     const hub = state.settings.hub.replace(/\/$/, '');
     const url = `${hub}/api/namespace/${ns}`;
     const res = await fetch(`/extension_proxy?url=${encodeURIComponent(url)}`, { headers: { 'Accept': 'application/json' }});
     const data = await res.json();
-    
     routeListEl.innerHTML = "";
-    
     const routes = data.routes || {};
     if(Object.keys(routes).length === 0) {
       routeListEl.innerHTML = `<div style="padding:20px; color:#999">No routes found via API.</div>`;
       return;
     }
-
     Object.entries(routes).forEach(([pathKey, info]) => {
       // 1. 计算完整路径
       let fullPath = pathKey;
       if (!pathKey.toLowerCase().startsWith(`/${ns.toLowerCase()}`)) {
          fullPath = `/${ns}${pathKey.startsWith('/') ? '' : '/'}${pathKey}`;
       }
-
       const div = document.createElement('div');
       div.className = "route-item";
-      
       // 2. 构建参数说明
-      let paramsHtml = '<div style="font-style:italic; color:#999; margin:5px 0">无参数 (No parameters)</div>';
+      let paramsHtml = '<div style="font-style:italic; color:#999; margin:5px 0">无参数</div>';
       if (info.parameters && Object.keys(info.parameters).length > 0) {
         let rows = '';
         for (const [pKey, pVal] of Object.entries(info.parameters)) {
@@ -916,7 +870,6 @@ async function loadRoutes(ns) {
           <tbody>${rows}</tbody>
         </table>`;
       }
-
       // 3. 构建描述与示例 (使用 markdown-it + container 渲染)
       let descHtml = '';
       if (info.description) {
@@ -926,7 +879,6 @@ async function loadRoutes(ns) {
                 linkify: true,
                 breaks: true
             });
-            
             // 注册容器插件 (Tip, Warning, Danger)
             if (typeof window.markdownitContainer !== 'undefined') {
                 const registerContainer = (name, title) => {
@@ -944,7 +896,6 @@ async function loadRoutes(ns) {
                 registerContainer('warning', '注意 / Warning');
                 registerContainer('danger', '警告 / Danger');
             }
-
             const rawHtml = md.render(info.description);
             // hack: 让链接 target="_blank"
             descHtml = `<div class="md-content">${rawHtml.replace(/<a /g, '<a target="_blank" ')}</div>`;
@@ -952,9 +903,7 @@ async function loadRoutes(ns) {
             descHtml = `<div style="margin-bottom:8px; line-height:1.4">${cleanMarkdown(info.description)}</div>`;
          }
       }
-      
       const exampleHtml = info.example ? `<div style="background:#eee; padding:4px; border-radius:4px; margin-bottom:8px; font-family:monospace; word-break:break-all; font-size:11px;">Example: ${info.example}</div>` : '';
-
       div.innerHTML = `
         <div class="route-header">
           <div>
@@ -974,7 +923,6 @@ async function loadRoutes(ns) {
           </div>
         </div>
       `;
-
       // 点击展开/收起逻辑
       div.onclick = function() {
         const isExpanded = this.classList.contains('expanded');
@@ -982,38 +930,31 @@ async function loadRoutes(ns) {
             el.classList.remove('expanded');
             el.querySelector('.fa-chevron-down').style.transform = 'rotate(0deg)';
         });
-        
         if (!isExpanded) {
           this.classList.add('expanded');
           this.querySelector('.fa-chevron-down').style.transform = 'rotate(180deg)';
           setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
         }
       };
-
       routeListEl.appendChild(div);
     });
-
   } catch(e) {
     routeListEl.innerHTML = `<div style="padding:20px; color:red">Error loading routes: ${e.message}</div>`;
   }
 }
-
 // 辅助函数：将选中的路由填回添加框
 window.selectRoute = function(path, title) {
   closeModal('exploreModal');
   openModal('addFeedModal');
-  
   document.getElementById('feedInput').value = path;
   document.getElementById('feedType').value = 'rsshub';
   document.getElementById('feedNameInput').value = title;
-  
   // 视觉反馈
   const input = document.getElementById('feedInput');
   input.style.transition = 'background 0.2s';
   input.style.background = '#e6fffa';
   setTimeout(() => input.style.background = '#fafafa', 500);
 }
-
 /* ================== Stream Core ================== */
 async function streamAIRequest(sys, user, onChunk, onFinish) {
   try {
@@ -1039,7 +980,7 @@ async function streamAIRequest(sys, user, onChunk, onFinish) {
       }
     }
     if(onFinish) onFinish();
-  } catch (e) { alert(t('toolbar.translate_fail') + ": " + e.message); }
+  } catch (e) { console.error(e); alert(t('toolbar.translate_fail') + ": " + e.message); }
 }
 function cleanMarkdown(text) { 
   if(!text) return "";
@@ -1050,7 +991,6 @@ function cleanMarkdown(text) {
     .replace(/\n/g, '<br>')
     .trim(); 
 }
-
 /* ================== Action Logic ================== */
 function setToolbarBusy(isBusy) {
   const btns = ['btnSummarize', 'btnTranslateFull', 'btnAskAI'];
@@ -1059,22 +999,18 @@ function setToolbarBusy(isBusy) {
     if(btn) btn.disabled = isBusy;
   });
 }
-
 async function actionSummarize(btn) {
   const art = state.currentArticle;
   if (!art) return;
   setToolbarBusy(true);
-
   const summarySec = document.getElementById('aiSummarySection');
   summarySec.style.display = 'block';
   document.getElementById('aiSummaryContent').innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${t('content.generating')}`;
-  
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = art.desc;
   const rawText = tempDiv.innerText.slice(0, 5000);
   let fullText = "";
   const targetLang = state.settings.targetLang;
-  
   await streamAIRequest(
     `Summarize the following article in ${targetLang}. Output PURE HTML (<ul>, <li>, <p>). NO markdown blocks.`, 
     rawText, 
@@ -1086,68 +1022,168 @@ async function actionSummarize(btn) {
     }
   );
 }
+/* ================== 新增：流式结构化翻译核心逻辑 ================== */
+/**
+ * 处理整篇文章的翻译
+ * 策略：识别段落级别的元素，提取其中的文本节点，并行翻译后流式回填
+ */
+async function translateArticleContent(contentEl, targetLang) {
+  // 1. 获取所有可翻译的块级元素
+  // 选择器：p, h1-h6, li, blockquote, td, th
+  const selectors = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'td', 'th', 'div'];
+  const blocks = Array.from(contentEl.querySelectorAll(selectors.join(',')));
+  // 2. 过滤并准备翻译任务
+  const translationTasks = [];
+  const skipTags = ['SCRIPT', 'STYLE', 'CODE', 'PRE', 'NOSCRIPT', 'IFRAME', 'SVG'];
+  blocks.forEach((block) => {
+    // 检查是否在不可翻译的容器内
+    if (block.closest('code, pre, noscript, script')) return;
+    if (skipTags.includes(block.tagName)) return;
+    // 获取块内所有文本节点
+    const textNodes = [];
+    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, null, false);
+    let node;
+    while (node = walker.nextNode()) {
+      const text = node.textContent.trim();
+      if (text.length > 0) {
+        textNodes.push(node);
+      }
+    }
+    if (textNodes.length > 0) {
+      // 将所有文本节点内容拼接
+      const originalText = textNodes.map(n => n.textContent).join(' ').trim();
+      if (originalText.length < 2) return; // 太短不翻译
+      translationTasks.push({
+        blockElement: block,
+        textNodes: textNodes,
+        originalText: originalText
+      });
+    }
+  });
+  console.log(`Found ${translationTasks.length} translatable blocks.`);
+  // 3. 并行发起翻译任务 (使用 Promise.all)
+  await Promise.all(translationTasks.map(task => translateBlock(task, targetLang)));
+}
+/**
+ * 翻译单个块元素 (优化抖动版本)
+ */
+async function translateBlock(task, targetLang) {
+  const { blockElement, textNodes, originalText } = task;
+  
+  // 标记状态
+  blockElement.setAttribute('data-translating', 'true');
+  
+  let currentTranslation = "";
+  const firstTextNode = textNodes[0];
+  let rafId = null; // 用于 requestAnimationFrame 的 ID
+  let isFirstChunk = true; // 标记是否是第一段流
 
+  // 为了保持结构（如图片），我们将翻译结果流式填充到第一个文本节点
+  // 策略：延迟清理后续文本节点，直到第一段翻译到来，防止高度瞬间坍缩
+
+  await streamAIRequest(
+    `Translate the following text to ${targetLang}. Return ONLY the translated text. Do not include any markdown or HTML tags. Keep it natural.`,
+    originalText,
+    (chunk) => {
+      currentTranslation += chunk;
+
+      // === 关键修复：使用 requestAnimationFrame 节流 DOM 更新 ===
+      if (!rafId) {
+        rafId = requestAnimationFrame(() => {
+          // 第一次更新时，清理掉后续的原始文本节点，防止内容重复
+          if (isFirstChunk) {
+            for (let i = 1; i < textNodes.length; i++) {
+              textNodes[i].textContent = "";
+            }
+            isFirstChunk = false;
+          }
+
+          // 更新第一个节点的文本
+          firstTextNode.textContent = currentTranslation;
+          rafId = null; // 重置 ID，允许下一次请求
+        });
+      }
+    },
+    () => {
+      // 完成后
+      if (rafId) cancelAnimationFrame(rafId); // 取消可能存在的最后一帧请求
+      
+      // 确保最后一次更新被应用
+      firstTextNode.textContent = currentTranslation;
+      for (let i = 1; i < textNodes.length; i++) textNodes[i].textContent = "";
+
+      blockElement.removeAttribute('data-translating');
+      blockElement.setAttribute('data-translated', 'true');
+      
+      // 添加淡入动画类，稍后移除
+      blockElement.classList.add('trans-fade-in');
+      setTimeout(() => blockElement.classList.remove('trans-fade-in'), 500);
+    }
+  );
+}
+
+// ================== 修改：actionTranslateFull 函数 ==================
 async function actionTranslateFull(btn) {
   const art = state.currentArticle;
   if (!art) return;
-
+  // 如果已经在显示翻译，切回原文
   if (art.showingTranslation) {
     art.showingTranslation = false;
     renderArticleBody(art);
     return;
   }
+  // 如果已经有缓存的翻译，直接显示
   if (art.aiTranslation && art.aiTitleTranslation) {
     art.showingTranslation = true;
     renderArticleBody(art);
     return;
   }
-
   setToolbarBusy(true);
   updateTranslateBtnState(true);
-  
   const bodyEl = document.getElementById('articleBody');
   const titleEl = document.getElementById('artTitle');
-  
-  bodyEl.innerHTML = `<div style="padding:40px;text-align:center;color:var(--accent)"><i class="fa-solid fa-circle-notch fa-spin"></i> ${t('content.generating')}</div>`;
-  
-  const loadingText = t('content.translating_title'); 
-  titleEl.innerHTML = `<span style="color:#999"><i class="fa-solid fa-spinner fa-spin"></i> ${loadingText}</span>`;
-
+  // 确保内容已渲染（渲染原文作为基础）
+  bodyEl.innerHTML = art.desc;
   const targetLang = state.settings.targetLang;
-  let finalTitle = "";
+  // --- 1. 翻译标题 ---
+  let translatedTitle = "";
+  const originalTitle = art.title;
+  // 标题翻译指示器
+  titleEl.innerHTML = `<span style="display:flex; align-items:center; gap:6px">
+    <span style="color:#666; opacity:0.7">${originalTitle}</span>
+    <i class="fa-solid fa-circle-notch fa-spin" style="font-size:0.8em; color:var(--accent)"></i>
+  </span>`;
   await streamAIRequest(
-    `Translate title to ${targetLang}. Return ONLY text. No quotes.`,
-    art.title,
+    `Translate title to ${targetLang}. Return ONLY the translated text.`,
+    originalTitle,
     (chunk) => {
-      finalTitle += chunk;
-      titleEl.innerText = finalTitle; 
+      translatedTitle += chunk;
+      // 标题流式显示：显示译文 + 原文(小字)
+      titleEl.innerHTML = `<span>${translatedTitle}</span>`;
     },
-    () => { art.aiTitleTranslation = finalTitle.trim(); }
+    () => {
+      art.aiTitleTranslation = translatedTitle.trim();
+      // 翻译完成后，也可以选择隐藏原文，或者保留在 title 属性中
+      titleEl.title = originalTitle; 
+    }
   );
-
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = art.desc;
-  const rawText = tempDiv.innerText.slice(0, 6000);
-
-  let accumulatedHTML = "";
-  let isFirst = true;
-
-  await streamAIRequest(
-    `Translate to ${targetLang}. Keep structure. Output PURE HTML (<p>, <h3>). NO markdown blocks.`,
-    rawText,
-    (chunk) => {
-      if(isFirst) { bodyEl.innerHTML = ""; isFirst = false; }
-      accumulatedHTML += chunk;
-      bodyEl.innerHTML = cleanMarkdown(accumulatedHTML);
-    },
-    () => { art.aiTranslation = cleanMarkdown(accumulatedHTML); }
-  );
-
-  art.showingTranslation = true;
-  await saveArticleMeta(art);
+  // --- 2. 翻译正文 (使用新的结构化流式翻译) ---
+  try {
+    // 这里会并行处理各个段落
+    await translateArticleContent(bodyEl, targetLang);
+    // 保存翻译后的完整 HTML
+    art.aiTranslation = bodyEl.innerHTML;
+    art.showingTranslation = true;
+    await saveArticleMeta(art);
+    console.log('Article translation completed and saved.');
+  } catch (error) {
+    console.error('Translation failed:', error);
+    alert('Translation process encountered an error. Please try again.');
+    // 恢复原状
+    bodyEl.innerHTML = art.desc;
+  }
   setToolbarBusy(false);
 }
-
 async function saveArticleMeta(art) {
   if (!art.link) return;
   await dbHelper.put('article_meta', {
@@ -1158,7 +1194,6 @@ async function saveArticleMeta(art) {
     timestamp: Date.now()
   });
 }
-
 async function actionTranslateSelection() {
   const pop = document.getElementById('translatePopup');
   const bar = document.getElementById('selectionToolbar');
@@ -1170,7 +1205,6 @@ async function actionTranslateSelection() {
     if(first){ resEl.innerHTML=""; first=false; } full+=c; resEl.innerText=full;
   });
 }
-
 function actionAskAIFull(btn) {
   if (!state.ws || state.ws.readyState !== WebSocket.OPEN) return alert("WS Disconnected");
   state.ws.send(JSON.stringify({ type: 'set_user_input', data: { text: `关于《${document.getElementById('artTitle').innerText}》:\n${document.getElementById('articleBody').innerText}` } }));
@@ -1180,7 +1214,6 @@ function actionAskAI() {
   state.ws.send(JSON.stringify({ type: 'set_user_input', data: { text: `关于《${document.getElementById('artTitle').innerText}》:\n${window.getSelection().toString()}` } }));
   document.getElementById('selectionToolbar').style.display='none';
 }
-
 /* ================== Utils ================== */
 async function clearCache() {
   if(confirm(t('alerts.cache_clear_confirm'))) {
