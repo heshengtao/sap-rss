@@ -21,6 +21,11 @@
         "name": "Solidot",
         "path": "/solidot/www",
         "desc": "奇客的资讯，重要的东西。"
+      },
+      {
+        "name": "BBC - World Asia",
+        "path": "/bbc/world-asia",
+        "desc": "BBC World Asia频道新闻。"
       }
     ]
   },
