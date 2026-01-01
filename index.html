@@ -191,6 +191,9 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 .ns-item { padding: 8px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f0f0f0; transition: .2s; }
 .ns-item:hover { background: #eee; }
 .ns-item.active { background: #e6e6e6; color: var(--accent); font-weight: bold; border-left: 3px solid var(--accent); }
+.ns-item.special-item { background: #fff8f0; color: #d35400; font-weight: 600; border-bottom: 1px dashed #e0e0e0; }
+.ns-item.special-item:hover { background: #ffe0d0; }
+.ns-item.special-item.active { background: #ffebd9; border-left-color: #d35400; }
 
 /* 路由列表与详情样式 */
 .route-item { 
@@ -218,6 +221,17 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 }
 .route-item.expanded { background: #f0f8ff; border-left: 3px solid var(--accent); }
 .route-item.expanded .route-details { display: block; }
+.featured-group-title {
+  padding: 10px 12px;
+  background: #f1f1f1;
+  font-weight: bold;
+  font-size: 12px;
+  color: #666;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
 
 /* Markdown 渲染样式 */
 .md-content { font-size: 13px; line-height: 1.5; color: #444; margin-bottom: 10px; }
@@ -524,7 +538,7 @@ let state = {
   },
   activeIdx: -1, articles: [], currentArticle: null, ws: null, i18nData: {},
   // Explorer State
-  namespaces: [], currentNs: null
+  namespaces: [], currentNs: null, featuredData: null
 };
 if (!['zh', 'en'].includes(state.settings.lang)) state.settings.lang = 'zh';
 
@@ -764,6 +778,13 @@ function renderNamespaces(filterText = "") {
   const listEl = document.getElementById('nsList');
   listEl.innerHTML = "";
   
+  // Always render the Featured button at the top
+  const featuredDiv = document.createElement('div');
+  featuredDiv.className = `ns-item special-item ${state.currentNs === 'FEATURED_HOME' ? 'active' : ''}`;
+  featuredDiv.innerHTML = '<i class="fa-solid fa-fire"></i> 热门推荐 (Featured)';
+  featuredDiv.onclick = () => loadFeatured();
+  listEl.appendChild(featuredDiv);
+
   const filtered = state.namespaces.filter(ns => ns.toLowerCase().includes(filterText.toLowerCase()));
   
   filtered.forEach(ns => {
@@ -778,6 +799,70 @@ function renderNamespaces(filterText = "") {
 function filterNamespaces() {
   const val = document.getElementById('nsFilter').value;
   renderNamespaces(val);
+}
+
+// 加载热门推荐 JSON
+async function loadFeatured() {
+  state.currentNs = 'FEATURED_HOME';
+  renderNamespaces(document.getElementById('nsFilter').value); // Re-render sidebar to highlight "Featured"
+  
+  const routeListEl = document.getElementById('routeList');
+  routeListEl.innerHTML = `<div style="text-align:center; padding:50px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i> Loading featured routes...</div>`;
+
+  if (!state.featuredData) {
+    try {
+      const res = await fetch('./featured_routes.json');
+      if (!res.ok) throw new Error('Failed to load JSON');
+      state.featuredData = await res.json();
+    } catch(e) {
+      routeListEl.innerHTML = `<div style="padding:20px; color:red">Failed to load featured routes.<br>${e.message}</div>`;
+      return;
+    }
+  }
+  
+  renderFeaturedView();
+}
+
+function renderFeaturedView() {
+  const routeListEl = document.getElementById('routeList');
+  routeListEl.innerHTML = "";
+
+  if (!state.featuredData || !state.featuredData.length) {
+    routeListEl.innerHTML = `<div style="padding:20px; color:#999">No featured routes defined.</div>`;
+    return;
+  }
+
+  state.featuredData.forEach(group => {
+    // 渲染分组标题
+    const groupTitle = document.createElement('div');
+    groupTitle.className = 'featured-group-title';
+    groupTitle.innerText = group.category;
+    routeListEl.appendChild(groupTitle);
+
+    // 渲染组内路由
+    group.routes.forEach(route => {
+       const div = document.createElement('div');
+       div.className = "route-item";
+       div.innerHTML = `
+        <div class="route-header">
+          <div>
+            <div class="route-title">${route.name}</div>
+            <div class="route-path-preview">${route.path}</div>
+          </div>
+        </div>
+        <div style="margin-top:8px; font-size:12px; color:#666; line-height:1.4">
+          ${route.desc}
+        </div>
+        <div style="overflow:hidden">
+            <button class="use-btn" onclick="selectRoute('${route.path}', '${route.name}')">
+              <i class="fa-solid fa-check"></i> 使用 / Use
+            </button>
+        </div>
+       `;
+       // 这里不需要点击展开详情，因为已经展示了，直接给 hover 效果即可
+       routeListEl.appendChild(div);
+    });
+  });
 }
 
 // 支持 Markdown-it + Container 渲染和路径拼接
@@ -1168,7 +1253,10 @@ function openModal(id) {
     document.getElementById('feedNameInput').value = ''; 
   }
   if(id === 'exploreModal') {
+    // 默认打开时，如果还没加载 namespace，加载它们
     if(state.namespaces.length === 0) loadNamespaces();
+    // 默认显示热门
+    loadFeatured();
   }
 }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
