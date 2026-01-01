@@ -5,11 +5,6 @@
     "type": "url" 
   },
   {
-    "title": {"zh": "Linux.do 最新话题", "en": "Linux.do Latest"}, 
-    "url": "https://linux.do/latest.rss", 
-    "type": "url"
-  },
-  {
     "title": {"zh": "阮一峰的网络日志", "en": "Ruan YiFeng's Blog"},
     "url": "http://www.ruanyifeng.com/blog/atom.xml",
     "type": "url"

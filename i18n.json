@@ -4,7 +4,10 @@
       "title": "我的订阅",
       "loading": "正在加载订阅源...",
       "clear_cache": "清理缓存",
-      "cleared": "缓存已清理"
+      "cleared": "缓存已清理",
+      "add": "添加订阅",
+      "settings": "设置",
+      "explore": "RSSHub 发现"
     },
     "list": {
       "title_default": "文章列表",
@@ -15,7 +18,8 @@
       "retry": "重试",
       "error_backend": "后端错误",
       "error_xml": "XML 解析失败",
-      "error_empty": "源内容为空"
+      "error_empty": "源内容为空",
+      "refresh": "刷新列表"
     },
     "content": {
       "placeholder_text": "选择文章开始阅读",
@@ -24,7 +28,8 @@
       "generating": "正在生成...",
       "toggle_original": "显示原文",
       "toggle_translated": "显示译文",
-      "translating_title": "标题翻译中..."
+      "translating_title": "标题翻译中...",
+      "fullscreen": "全屏阅读"
     },
     "toolbar": {
       "translate": "选中翻译",
@@ -42,6 +47,7 @@
     "modals": {
       "add_title": "添加订阅",
       "url_label": "URL / 路由",
+      "name_label": "订阅名称 (可选)",
       "type_label": "类型",
       "type_rsshub": "RSSHub 路由",
       "type_url": "普通 RSS URL",
@@ -56,6 +62,11 @@
       "target_lang_label": "AI 翻译目标语言 / Target Language",
       "btn_save": "保存配置"
     },
+    "explore": {
+      "title": "RSSHub 发现",
+      "select_ns_tip": "请选择左侧分类以查看路由",
+      "load_error": "加载失败，请检查 RSSHub 配置"
+    },
     "alerts": {
       "delete_confirm": "删除",
       "default_locked": "默认源不可删除",
@@ -67,7 +78,10 @@
       "title": "My Feeds",
       "loading": "Loading feeds...",
       "clear_cache": "Clear Cache",
-      "cleared": "Cache Cleared"
+      "cleared": "Cache Cleared",
+      "add": "Add Feed",
+      "settings": "Settings",
+      "explore": "Explore RSSHub"
     },
     "list": {
       "title_default": "Article List",
@@ -78,7 +92,8 @@
       "retry": "Retry",
       "error_backend": "Backend Error",
       "error_xml": "XML Parse Error",
-      "error_empty": "Feed is empty"
+      "error_empty": "Feed is empty",
+      "refresh": "Refresh List"
     },
     "content": {
       "placeholder_text": "Select an article to read",
@@ -87,7 +102,8 @@
       "generating": "Generating...",
       "toggle_original": "Show Original",
       "toggle_translated": "Show Translation",
-      "translating_title": "Translating Title..."
+      "translating_title": "Translating Title...",
+      "fullscreen": "Fullscreen"
     },
     "toolbar": {
       "translate": "Selection Translate",
@@ -105,6 +121,7 @@
     "modals": {
       "add_title": "Add Feed",
       "url_label": "URL / Route",
+      "name_label": "Name (Optional)",
       "type_label": "Type",
       "type_rsshub": "RSSHub Route",
       "type_url": "Standard RSS URL",
@@ -118,6 +135,11 @@
       "lang_label": "Interface Language / 界面语言",
       "target_lang_label": "AI Translation Target / 目标语言",
       "btn_save": "Save Config"
+    },
+    "explore": {
+      "title": "RSSHub Explorer",
+      "select_ns_tip": "Select a namespace on the left",
+      "load_error": "Load failed. Check settings."
     },
     "alerts": {
       "delete_confirm": "Delete",
