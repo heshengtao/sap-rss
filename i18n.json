@@ -8,7 +8,8 @@
       "add": "添加订阅",
       "settings": "设置",
       "explore": "RSSHub 发现",
-      "search_placeholder": "搜索订阅..." 
+      "search_placeholder": "搜索订阅...",
+      "site_explore": "RSS 站点大全"
     },
     "list": {
       "title_default": "文章列表",
@@ -71,7 +72,10 @@
       "opml_tip": "或者是... 从文件导入",
       "opml_success": "成功导入 {n} 个订阅！",
       "opml_error": "文件解析失败",
-      "importing": "正在导入..."
+      "importing": "正在导入...",
+      "site_explore_title": "精选 RSS 站点",
+      "site_search_placeholder": "搜索站点名称或描述...",
+      "btn_use": "添加此源"
     },
     "explore": {
       "title": "RSSHub 发现",
@@ -93,7 +97,8 @@
       "add": "Add Feed",
       "settings": "Settings",
       "explore": "Explore RSSHub",
-      "search_placeholder": "Filter feeds..."
+      "search_placeholder": "Filter feeds...",
+      "site_explore": "RSS Site Directory"
     },
     "list": {
       "title_default": "Article List",
@@ -156,7 +161,10 @@
       "opml_tip": "OR... Import from file",
       "opml_success": "Successfully imported {n} feeds!",
       "opml_error": "Failed to parse file",
-      "importing": "Importing..."
+      "importing": "Importing...",
+      "site_explore_title": "Featured RSS Sites",
+      "site_search_placeholder": "Search sites...",
+      "btn_use": "Add Feed"
     },
     "explore": {
       "title": "RSSHub Explorer",

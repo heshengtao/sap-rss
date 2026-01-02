@@ -1,0 +1,44 @@
+[
+  { 
+    "name": "GitHub Blog",
+    "description": "GitHub Blog",
+    "url": "https://github.blog/feed", 
+    "category": "Tech"
+  },
+  {
+    "name": "阮一峰的网络日志",
+    "description": "阮一峰的网络日志",
+    "url": "http://www.ruanyifeng.com/blog/atom.xml",
+    "category": "Tech"
+  },
+  {
+    "name": "V2EX",
+    "description": "V2EX 是一个关于分享和探索的地方",
+    "url": "https://www.v2ex.com/index.xml",
+    "category": "Tech"
+  },
+  {
+    "name": "Pixiv",
+    "description": "Illustration・Manga・Novel Creative Exchange Platform",
+    "url": "http://pixiv.net.cn/feed",
+    "category": "Art"
+  },
+  {
+    "name": "少数派 sspai",
+    "url": "https://sspai.com/feed",
+    "description": "高效工作，品质生活",
+    "category": "Tech"
+  },
+  {
+    "name": "The Verge",
+    "url": "https://www.theverge.com/rss/index.xml",
+    "description": "Covering the intersection of technology, science, art, and culture.",
+    "category": "Tech"
+  },
+  {
+    "name": "机核网 GCORES",
+    "url": "https://www.gcores.com/rss",
+    "description": "不止是游戏",
+    "category": "Game"
+  }
+]
