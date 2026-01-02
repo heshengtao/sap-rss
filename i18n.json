@@ -42,7 +42,12 @@
       "sent_success": "已发送",
       "tip_summarize": "使用 AI 生成文章摘要",
       "tip_translate": "翻译文章标题及全文内容",
-      "tip_ask": "基于全文内容向 AI 提问"
+      "tip_ask": "基于全文内容向 AI 提问",
+      "view_mode": {
+        "label": "阅读视图",
+        "blog": "博客模式",
+        "gallery": "画廊模式"
+      }
     },
     "modals": {
       "add_title": "添加订阅",
@@ -116,7 +121,12 @@
       "sent_success": "Sent",
       "tip_summarize": "Generate a concise summary of the article",
       "tip_translate": "Translate title and content",
-      "tip_ask": "Ask questions based on full context"
+      "tip_ask": "Ask questions based on full context",
+      "view_mode": {
+        "label": "View Mode",
+        "blog": "Blog View",
+        "gallery": "Gallery View"
+      }
     },
     "modals": {
       "add_title": "Add Feed",

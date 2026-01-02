@@ -289,6 +289,105 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
   from { opacity: 0; transform: translateY(2px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* ================== [新增] 视图切换下拉菜单样式 ================== */
+.dropdown-menu {
+  display: none; position: absolute; top: 100%; left: 0;
+  background: #fff; border: 1px solid #eee; border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 5px; z-index: 100;
+  min-width: 140px; animation: fadeIn 0.2s;
+}
+.dropdown-menu.show { display: block; }
+.dropdown-item {
+  padding: 8px 12px; font-size: 13px; cursor: pointer;
+  border-radius: 4px; display: flex; align-items: center; gap: 8px; color: #555;
+}
+.dropdown-item:hover { background: #f5f5f5; color: #000; }
+.dropdown-item.active { background: #e6f7ff; color: var(--accent); }
+.dropdown-item i { width: 16px; text-align: center; }
+
+/* ================== [新增] 文章视图模式样式 ================== */
+
+/* --- 通用重置 --- */
+#articleContent {
+  transition: max-width 0.3s ease;
+  margin: 0 auto;
+}
+
+/* --- 1. 博客模式 (Blog View) --- */
+/* 专注于排版、阅读体验，类似 Medium/知乎专栏 */
+#articleContent.view-blog {
+  max-width: 720px; /* 限制宽度以提升阅读体验 */
+}
+#articleContent.view-blog #articleHeader h1 {
+  font-family: "Georgia", "Source Han Serif CN", "Songti SC", serif; /* 衬线体标题 */
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+}
+#articleContent.view-blog #articleBody {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 18px; /* 更大的字号 */
+  line-height: 1.8; /* 更宽松的行高 */
+  color: #2c3e50;
+}
+#articleContent.view-blog #articleBody p { margin-bottom: 24px; }
+#articleContent.view-blog #articleBody img,
+#articleContent.view-blog #articleBody video,
+#articleContent.view-blog #articleBody iframe {
+  max-width: 100%; height: auto; display: block; margin: 20px auto;
+  border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+#articleContent.view-blog blockquote {
+  border-left: 4px solid var(--accent);
+  padding-left: 16px; margin: 20px 0; color: #666; font-style: italic; background: #fafafa; padding: 10px 16px;
+}
+
+/* --- 2. 画廊模式 (Gallery View) --- */
+/* 专注于图片展示，瀑布流布局 */
+#articleContent.view-gallery {
+  max-width: 100%; /* 全宽 */
+  padding: 0 10px;
+}
+#articleContent.view-gallery #articleHeader {
+  text-align: center; max-width: 800px; margin: 0 auto 30px auto;
+}
+#articleContent.view-gallery #aiSummarySection {
+  max-width: 800px; margin: 0 auto 20px auto;
+}
+/* 使用 CSS Columns 实现瀑布流，因为它能很好地处理不同高度的图片 */
+#articleContent.view-gallery #articleBody {
+  column-count: 3; /* 桌面端 3 列 */
+  column-gap: 15px;
+  font-size: 14px;
+}
+/* 每一块内容（段落或图片容器）避免在中间断开 */
+#articleContent.view-gallery #articleBody > * {
+  break-inside: avoid;
+  margin-bottom: 15px;
+  background: #fff;
+  border-radius: 8px;
+  /* 可选：给每个块加一点卡片效果 */
+  /* border: 1px solid #f0f0f0; padding: 10px; */ 
+}
+#articleContent.view-gallery #articleBody img,
+#articleContent.view-gallery #articleBody video,
+#articleContent.view-gallery #articleBody iframe {
+  width: 100%; height: auto;
+  border-radius: 6px;
+  display: block;
+}
+/* 在画廊模式下，弱化纯文本段落，或者让它像图片说明 */
+#articleContent.view-gallery #articleBody p {
+  color: #666; line-height: 1.5; margin-top: 5px;
+}
+
+/* 移动端适配画廊模式 */
+@media (max-width: 768px) {
+  #articleContent.view-gallery #articleBody { column-count: 2; }
+}
+@media (max-width: 480px) {
+  #articleContent.view-gallery #articleBody { column-count: 1; }
+}
 </style>
 </head>
 <body data-view="sidebar">
@@ -325,13 +424,32 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 <div id="contentView" class="layout-col">
   <div class="header-bar">
     <button class="btn-icon mobile-show" onclick="navTo('list')"><i class="fa-solid fa-chevron-left"></i></button>
+    
+    <!-- [新增] 视图切换组件 -->
+    <div class="view-switcher-group" style="margin-left: 10px; position: relative;">
+      <button class="btn-icon" onclick="toggleViewMenu()" id="btnViewSwitch" data-tooltip="toolbar.view_mode.label">
+        <i class="fa-solid fa-newspaper"></i>
+      </button>
+      <!-- 下拉菜单 -->
+      <div id="viewMenu" class="dropdown-menu">
+        <div class="dropdown-item active" onclick="changeViewMode('blog')" id="viewOptionBlog">
+          <i class="fa-solid fa-align-left"></i> <span data-i18n="toolbar.view_mode.blog">博客模式</span>
+        </div>
+        <div class="dropdown-item" onclick="changeViewMode('gallery')" id="viewOptionGallery">
+          <i class="fa-solid fa-images"></i> <span data-i18n="toolbar.view_mode.gallery">画廊模式</span>
+        </div>
+      </div>
+    </div>
+
     <div style="flex:1"></div>
-    <!-- AI 功能区 -->
+    
+    <!-- AI 功能区 (保持不变) -->
     <div class="toolbar-group">
       <button class="btn-toolbar" id="btnSummarize" onclick="actionSummarize(this)" data-tooltip="toolbar.tip_summarize">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span data-i18n="toolbar.summarize">全文总结</span>
       </button>
+      <!-- ... 其他按钮保持不变 ... -->
       <button class="btn-toolbar" id="btnTranslateFull" onclick="actionTranslateFull(this)" data-tooltip="toolbar.tip_translate">
         <i class="fa-solid fa-language"></i>
         <span data-i18n="toolbar.translate_full">全文翻译</span>
@@ -343,12 +461,15 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
     </div>
     <button class="btn-icon mobile-hide" onclick="toggleFullScreen()" data-tooltip="content.fullscreen"><i class="fa-solid fa-expand"></i></button>
   </div>
-  <div class="article-scroll-area">
+
+  <div class="article-scroll-area" id="articleScrollArea">
     <div id="placeholder">
       <i class="fa-solid fa-book-open" style="font-size:48px;opacity:0.3"></i>
       <div data-i18n="content.placeholder_text">选择文章开始阅读</div>
     </div>
-    <div id="articleContent" style="display:none">
+    
+    <!-- 增加一个包裹层 content-wrapper 用于控制宽窄 -->
+    <div id="articleContent" class="view-blog" style="display:none">
       <div id="articleHeader">
         <h1 id="artTitle"></h1>
         <div class="article-meta">
@@ -361,6 +482,7 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
         <div class="summary-header"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="content.summary_title">AI 智能总结</span></div>
         <div id="aiSummaryContent"></div>
       </div>
+      <!-- 文章正文 -->
       <div id="articleBody"></div>
     </div>
   </div>
@@ -1378,6 +1500,119 @@ document.addEventListener('click', e => {
   const l = e.target.closest('a');
   if (l && l.href && l.href.startsWith('http')) l.target = '_blank';
 }, true);
+/* ================== View Mode Logic ================== */
+let currentViewMode = 'blog'; // 默认博客模式
+
+// 切换下拉菜单显示
+function toggleViewMenu() {
+  const menu = document.getElementById('viewMenu');
+  // 简单的显隐切换
+  if(menu.style.display === 'block') {
+    menu.style.display = 'none';
+  } else {
+    menu.style.display = 'block';
+    // 点击外部关闭
+    const closeListener = (e) => {
+      if(!e.target.closest('.view-switcher-group')) {
+        menu.style.display = 'none';
+        document.removeEventListener('click', closeListener);
+      }
+    };
+    // 延迟一点绑定，防止立即触发
+    setTimeout(() => document.addEventListener('click', closeListener), 0);
+  }
+}
+
+// 核心：改变视图模式
+function changeViewMode(mode) {
+  currentViewMode = mode;
+  const contentEl = document.getElementById('articleContent');
+  const btnIcon = document.querySelector('#btnViewSwitch i');
+  
+  // 1. 设置 CSS 类
+  if (mode === 'gallery') {
+    contentEl.classList.remove('view-blog');
+    contentEl.classList.add('view-gallery');
+    btnIcon.className = 'fa-solid fa-images'; // 图标变更为图片
+  } else {
+    contentEl.classList.remove('view-gallery');
+    contentEl.classList.add('view-blog');
+    btnIcon.className = 'fa-solid fa-newspaper'; // 图标变更为报纸/文章
+  }
+  
+  // 2. 更新下拉菜单选中状态
+  document.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(mode === 'blog' ? 'viewOptionBlog' : 'viewOptionGallery').classList.add('active');
+  
+  // 3. 记住用户偏好 (可选，这里仅针对单次会话或单篇文章)
+  // localStorage.setItem('rss_view_pref', mode); 
+}
+
+// 智能检测模式
+function autoDetectViewMode(htmlContent) {
+  // 创建一个临时容器来分析内容
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  
+  const imgs = tempDiv.querySelectorAll('img');
+  const videos = tempDiv.querySelectorAll('video, iframe');
+  const text = tempDiv.innerText.replace(/\s/g, ''); // 去除空白的纯文本
+  
+  const mediaCount = imgs.length + videos.length;
+  const textLen = text.length;
+
+  // 算法：如果媒体超过 5 个，且平均每张图配文少于 100 字，倾向于画廊模式
+  // 或者：如果全是图没有字
+  if (mediaCount >= 4 && (textLen / mediaCount) < 150) {
+    return 'gallery';
+  }
+  return 'blog';
+}
+
+// 修改原有的 renderArticleBody 函数
+function renderArticleBody(art) {
+  document.getElementById('placeholder').style.display='none';
+  const contentEl = document.getElementById('articleContent');
+  contentEl.style.display='block';
+  
+  document.getElementById('artDate').innerText = art.date;
+  document.getElementById('artLink').href = art.link;
+  const summarySec = document.getElementById('aiSummarySection');
+  const bodyEl = document.getElementById('articleBody');
+  const titleEl = document.getElementById('artTitle');
+
+  // AI 总结显示逻辑
+  if (art.aiSummary) { 
+    summarySec.style.display = 'block'; 
+    document.getElementById('aiSummaryContent').innerHTML = art.aiSummary; 
+  } else { 
+    summarySec.style.display = 'none'; 
+  }
+
+  // 渲染内容
+  let contentHtml = art.desc;
+  let titleText = art.title;
+  
+  if (art.showingTranslation && art.aiTranslation) {
+    contentHtml = art.aiTranslation;
+    titleText = art.aiTitleTranslation || art.title;
+    updateTranslateBtnState(true);
+  } else {
+    updateTranslateBtnState(false);
+  }
+
+  bodyEl.innerHTML = contentHtml;
+  titleEl.innerText = titleText;
+
+  // --- [关键] 自动检测并应用视图模式 ---
+  // 1. 先检测适合什么模式
+  const suggestedMode = autoDetectViewMode(contentHtml);
+  // 2. 应用模式 (如果不希望每次点击文章都重置，可以去掉这行，只在第一次加载时检测)
+  changeViewMode(suggestedMode);
+
+  // 滚动回顶部
+  document.getElementById('articleScrollArea').scrollTop = 0;
+}
 </script>
 </body>
 </html>
