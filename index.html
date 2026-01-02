@@ -486,18 +486,14 @@ label.btn-ghost:hover {
     
     <!-- AI 功能区 (保持不变) -->
     <div class="toolbar-group">
-      <button class="btn-toolbar" id="btnSummarize" onclick="actionSummarize(this)" data-tooltip="toolbar.tip_summarize">
+      <button class="btn-icon" id="btnSummarize" onclick="actionSummarize(this)" data-tooltip="toolbar.tip_summarize">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span data-i18n="toolbar.summarize">全文总结</span>
       </button>
-      <!-- ... 其他按钮保持不变 ... -->
-      <button class="btn-toolbar" id="btnTranslateFull" onclick="actionTranslateFull(this)" data-tooltip="toolbar.tip_translate">
+      <button class="btn-icon" id="btnTranslateFull" onclick="actionTranslateFull(this)" data-tooltip="toolbar.tip_translate">
         <i class="fa-solid fa-language"></i>
-        <span data-i18n="toolbar.translate_full">全文翻译</span>
       </button>
-      <button class="btn-toolbar" id="btnAskAI" onclick="actionAskAIFull(this)" data-tooltip="toolbar.tip_ask">
+      <button class="btn-icon" id="btnAskAI" onclick="actionAskAIFull(this)" data-tooltip="toolbar.tip_ask">
         <i class="fa-solid fa-robot"></i>
-        <span data-i18n="toolbar.ask_full_ai">全文问AI</span>
       </button>
     </div>
     <button class="btn-icon mobile-hide" onclick="toggleFullScreen()" data-tooltip="content.fullscreen"><i class="fa-solid fa-expand"></i></button>
