@@ -1939,7 +1939,7 @@ async function loadFeaturedRss() {
   }
 }
 
-// 2. 渲染卡片
+// 2. 渲染 RSS 站点卡片 (适配双语)
 function renderRssSites(list) {
   const container = document.getElementById('rssSiteList');
   container.innerHTML = '';
@@ -1949,10 +1949,18 @@ function renderRssSites(list) {
     return;
   }
 
+  const isZh = state.settings.lang === 'zh';
+
   list.forEach(site => {
+    // === [修改] 智能获取描述文本 ===
+    // 逻辑：优先取当前语言 -> 其次取另一种语言 -> 再次取旧字段 -> 最后默认文本
+    const descText = (isZh ? site.description_zh : site.description_en) || 
+                     (isZh ? site.description_en : site.description_zh) || 
+                     site.description || 
+                     'No description available.';
+
     const card = document.createElement('div');
     card.className = 'rss-card';
-    // 简单的 favicon 获取
     const iconUrl = `https://s2.googleusercontent.com/s2/favicons?domain_url=${new URL(site.url).origin}`;
     
     card.innerHTML = `
@@ -1961,7 +1969,8 @@ function renderRssSites(list) {
         <div class="rss-card-title" title="${site.name}">${site.name}</div>
         ${site.category ? `<span class="rss-card-tag">${site.category}</span>` : ''}
       </div>
-      <div class="rss-card-desc" title="${site.description || ''}">${site.description || 'No description available.'}</div>
+      <!-- 使用计算好的 descText -->
+      <div class="rss-card-desc" title="${descText}">${descText}</div>
       <button class="rss-card-btn" onclick="selectRssSite('${site.url}', '${site.name}')">
         <i class="fa-solid fa-plus"></i> ${t('modals.btn_use')}
       </button>
@@ -1970,14 +1979,22 @@ function renderRssSites(list) {
   });
 }
 
-// 3. 搜索过滤
+// 3. 搜索过滤 (适配双语字段)
 function filterRssSites() {
   const term = document.getElementById('rssSiteSearch').value.toLowerCase();
+  
   const filtered = state.featuredRss.filter(site => {
-    return (site.name && site.name.toLowerCase().includes(term)) || 
-           (site.description && site.description.toLowerCase().includes(term)) ||
-           (site.category && site.category.toLowerCase().includes(term));
+    // 辅助函数：安全转小写
+    const safeLower = (str) => (str || '').toLowerCase();
+
+    // === [修改] 同时检索中英文字段 ===
+    return safeLower(site.name).includes(term) || 
+           safeLower(site.description_zh).includes(term) || 
+           safeLower(site.description_en).includes(term) ||
+           safeLower(site.description).includes(term) || // 兼容旧字段
+           safeLower(site.category).includes(term);
   });
+  
   renderRssSites(filtered);
 }
 

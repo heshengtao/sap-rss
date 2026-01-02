@@ -1,44 +1,191 @@
 [
-  { 
+  {
     "name": "GitHub Blog",
-    "description": "GitHub Blog",
-    "url": "https://github.blog/feed", 
-    "category": "Tech"
+    "url": "https://github.blog/feed",
+    "category": "Tech",
+    "description_zh": "GitHub 官方博客，涵盖产品更新、开发者故事与工程实践。",
+    "description_en": "Official GitHub blog covering product updates, developer stories, and engineering practices."
+  },
+  {
+    "name": "Hacker News",
+    "url": "https://news.ycombinator.com/rss",
+    "category": "Tech",
+    "description_zh": "全球极客与创业者的每日必读，聚合高质量的计算机科学与创投资讯。",
+    "description_en": "Essential daily reading for geeks and founders, aggregating high-quality CS and startup news."
   },
   {
     "name": "阮一峰的网络日志",
-    "description": "阮一峰的网络日志",
     "url": "http://www.ruanyifeng.com/blog/atom.xml",
-    "category": "Tech"
+    "category": "Tech",
+    "description_zh": "中国知名技术博主，内容涵盖编程入门、科技趋势与个人随想，通俗易懂。",
+    "description_en": "A famous Chinese tech blog covering programming tutorials, tech trends, and personal thoughts."
   },
   {
     "name": "V2EX",
-    "description": "V2EX 是一个关于分享和探索的地方",
     "url": "https://www.v2ex.com/index.xml",
-    "category": "Tech"
+    "category": "Tech",
+    "description_zh": "一个由程序员、设计师与创意工作者组成的活跃社区。",
+    "description_en": "An active community for programmers, designers, and creative workers."
+  },
+  {
+    "name": "Solidot",
+    "url": "https://www.solidot.org/index.rss",
+    "category": "Tech",
+    "description_zh": "面向奇客的资讯平台，专注于硬核科技、开源软件与数字隐私。",
+    "description_en": "News for geeks, focusing on hard-core tech, open source software, and digital privacy."
+  },
+  {
+    "name": "CoolShell (酷壳)",
+    "url": "https://coolshell.cn/feed",
+    "category": "Tech",
+    "description_zh": "陈皓（左耳朵耗子）的技术博客，专注于底层技术、系统架构与深度观点。",
+    "description_en": "A technical blog by Chen Hao focusing on underlying technologies, system architecture, and deep insights."
+  },
+  {
+    "name": "Paul Graham Essays",
+    "url": "http://www.aaronsw.com/2002/feeds/pgessays.rss",
+    "category": "Indie",
+    "description_zh": "硅谷创业教父 Paul Graham 的随笔，涉及创业智慧、编程哲学与社会思考。",
+    "description_en": "Essays by Silicon Valley venture capitalist Paul Graham on startups, programming, and philosophy."
   },
   {
     "name": "Pixiv",
-    "description": "Illustration・Manga・Novel Creative Exchange Platform",
     "url": "http://pixiv.net.cn/feed",
-    "category": "Art"
+    "category": "Art",
+    "description_zh": "全球知名的插画、漫画与小说创作交流平台。",
+    "description_en": "A leading global community for creators to share illustrations, manga, and novels."
+  },
+  {
+    "name": "Smashing Magazine",
+    "url": "https://www.smashingmagazine.com/feed",
+    "category": "Design",
+    "description_zh": "面向专业网页设计师与开发者的在线杂志，提供高质量的前端与设计教程。",
+    "description_en": "An online magazine for professional web designers and developers, offering high-quality tutorials."
   },
   {
     "name": "少数派 sspai",
     "url": "https://sspai.com/feed",
-    "description": "高效工作，品质生活",
-    "category": "Tech"
+    "category": "Tech",
+    "description_zh": "致力于分享高效工作方法、优质软件应用与高品质数字生活指南。",
+    "description_en": "Dedicated to sharing efficient workflows, quality apps, and digital lifestyle guides."
+  },
+  {
+    "name": "小众软件 (Appinn)",
+    "url": "https://www.appinn.com/feed/",
+    "category": "Tech",
+    "description_zh": "专注于推荐免费、小巧、实用且有趣的软件工具。",
+    "description_en": "Focuses on recommending free, compact, practical, and interesting software utilities."
   },
   {
     "name": "The Verge",
     "url": "https://www.theverge.com/rss/index.xml",
-    "description": "Covering the intersection of technology, science, art, and culture.",
-    "category": "Tech"
+    "category": "Tech",
+    "description_zh": "主流科技媒体，探索科技、科学、艺术与流行文化的交融。",
+    "description_en": "Mainstream tech media covering the intersection of technology, science, art, and culture."
+  },
+  {
+    "name": "Ars Technica",
+    "url": "https://arstechnica.com/feed/",
+    "category": "Tech",
+    "description_zh": "深度科技报道，服务于IT专业人士，内容详实且具备批判性。",
+    "description_en": "Deep tech journalism serving IT professionals, known for detailed and critical content."
   },
   {
     "name": "机核网 GCORES",
     "url": "https://www.gcores.com/rss",
-    "description": "不止是游戏",
-    "category": "Game"
+    "category": "Game",
+    "description_zh": "不止是游戏资讯，更深入探讨游戏相关的文化、历史与生活方式。",
+    "description_en": "More than just game news; exploring the culture, history, and lifestyle surrounding video games."
+  },
+  {
+    "name": "Polygon",
+    "url": "https://www.polygon.com/rss/index.xml",
+    "category": "Game",
+    "description_zh": "Vox 旗下的游戏媒体，侧重于游戏背后的故事、人物与文化评论。",
+    "description_en": "Vox Media's gaming publication, focusing on the stories, people, and culture behind games."
+  },
+  {
+    "name": "Indie Hackers",
+    "url": "https://www.indiehackers.com/feed",
+    "category": "Indie",
+    "description_zh": "独立开发者社区，分享创始人如何构建盈利的副业项目与SaaS产品。",
+    "description_en": "A community where founders share stories of building profitable side projects and SaaS products."
+  },
+  {
+    "name": "Daring Fireball",
+    "url": "https://daringfireball.net/feeds/main",
+    "category": "Tech",
+    "description_zh": "John Gruber 的博客，以对 Apple 产品的深度解析与犀利评论著称。",
+    "description_en": "John Gruber's blog, famous for its deep analysis and sharp commentary on Apple products."
+  },
+  {
+    "name": "36Kr",
+    "url": "https://36kr.com/feed",
+    "category": "Tech",
+    "description_zh": "中国领先的新经济媒体，第一时间报道互联网创投、科技动态与商业趋势。",
+    "description_en": "China's leading new economy media, reporting on tech startups, trends, and business news."
+  },
+  {
+    "name": "不如读书",
+    "url": "https://wuyagege.substack.com/feed",
+    "category": "Indie",
+    "description_zh": "专注于阅读感悟与深度思考的个人 Newsletter，探讨科技、商业与人文的交汇。",
+    "description_en": "A personal newsletter focusing on reading notes and deep thinking at the intersection of tech, business, and humanities."
+  },
+  {
+    "name": "Karpathy",
+    "url": "https://karpathy.bearblog.dev/feed/",
+    "category": "Tech",
+    "description_zh": "AI 大神 Andrej Karpathy 的个人博客，分享关于深度学习与大模型的深刻见解。",
+    "description_en": "Personal blog of Andrej Karpathy, sharing deep insights on AI, Deep Learning, and LLMs."
+  },
+  {
+    "name": "高效磨耳朵",
+    "url": "http://www.ximalaya.com/album/46602128.xml",
+    "category": "Podcast",
+    "description_zh": "喜马拉雅上的英语听力训练频道，提供丰富的英语原声素材，适合利用碎片时间磨练语感。",
+    "description_en": "An English listening practice channel on Ximalaya, providing rich native audio materials."
+  },
+  {
+    "name": "AI洞察日报",
+    "url": "https://justlovemaki.github.io/CloudFlare-AI-Insight-Daily/rss.xml",
+    "category": "Tech",
+    "description_zh": "每日更新的人工智能行业动态、前沿论文与技术趋势摘要，帮助快速跟进 AI 浪潮。",
+    "description_en": "Daily updates summarizing AI industry dynamics, cutting-edge papers, and tech trends."
+  },
+  {
+    "name": "Airing's Blog",
+    "url": "https://blog.ursb.me/feed.xml",
+    "category": "Indie",
+    "description_zh": "一位全栈开发者的个人博客，记录编程技术、开源项目维护与生活随笔。",
+    "description_en": "A full-stack developer's blog recording coding techniques, open-source projects, and life essays."
+  },
+  {
+    "name": "Last Week in AI",
+    "url": "https://lastweekin.ai/feed",
+    "category": "Tech",
+    "description_zh": "权威的 AI 周报，汇总每周全球人工智能领域的新闻、研究论文与伦理讨论。",
+    "description_en": "Authoritative weekly AI digest summarizing global news, research papers, and ethical discussions."
+  },
+  {
+    "name": "Best Blogs",
+    "url": "https://www.bestblogs.dev/feeds/rss?featured=y",
+    "category": "Tech",
+    "description_zh": "精选聚合平台，通过算法与人工筛选全球最优质的软件开发与技术博文。",
+    "description_en": "A curated aggregator selecting the best software engineering and tech blog posts globally."
+  },
+  {
+    "name": "TED Talk Daily",
+    "url": "https://feed.firstory.me/rss/user/cjzdxzf7vbzvj075872kanoib",
+    "category": "Podcast",
+    "description_zh": "TED 官方每日播客，每天分享一个启发思考的演讲，涵盖科技、社会与心理学等领域。",
+    "description_en": "Official TED daily podcast, sharing one thought-provoking talk every day covering tech, society, and psychology."
+  },
+  {
+    "name": "The Daily",
+    "url": "https://feeds.simplecast.com/54nAGcIl",
+    "category": "Podcast",
+    "description_zh": "《纽约时报》出品的王牌新闻播客，每天深入解读一个全球热点新闻故事。",
+    "description_en": "The flagship news podcast from The New York Times, providing in-depth analysis of a top news story every day."
   }
 ]
