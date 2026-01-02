@@ -7,7 +7,8 @@
       "cleared": "缓存已清理",
       "add": "添加订阅",
       "settings": "设置",
-      "explore": "RSSHub 发现"
+      "explore": "RSSHub 发现",
+      "search_placeholder": "搜索订阅..." 
     },
     "list": {
       "title_default": "文章列表",
@@ -91,7 +92,8 @@
       "cleared": "Cache Cleared",
       "add": "Add Feed",
       "settings": "Settings",
-      "explore": "Explore RSSHub"
+      "explore": "Explore RSSHub",
+      "search_placeholder": "Filter feeds..."
     },
     "list": {
       "title_default": "Article List",

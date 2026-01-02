@@ -395,6 +395,36 @@ label.btn-ghost:hover {
   color: var(--accent);
   cursor: pointer;
 }
+/* ================== [新增] 侧边栏搜索框样式 ================== */
+.sidebar-search {
+  padding: 10px 12px;
+  background: #f9f9f9; /* 与侧边栏背景一致 */
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: sticky; /* 关键：吸顶效果 */
+  top: var(--header-h); /* 紧贴 Header 下方 */
+  z-index: 5;
+}
+.sidebar-search i {
+  color: #999;
+  font-size: 13px;
+}
+.sidebar-search input {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+}
+.sidebar-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+}
 </style>
 </head>
 <body data-view="sidebar">
@@ -409,6 +439,10 @@ label.btn-ghost:hover {
       <button class="btn-icon" onclick="openModal('settingsModal')" data-tooltip="sidebar.settings"><i class="fa-solid fa-cog"></i></button>
       <button class="btn-icon" onclick="clearCache()" data-tooltip="sidebar.clear_cache"><i class="fa-solid fa-trash-can"></i></button>
     </div>
+  </div>
+  <div class="sidebar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" id="feedSearchInput" oninput="filterFeeds(this.value)">
   </div>
   <div id="feedList"></div>
   <div id="loadingTips" style="text-align:center; padding:20px; color:#999; font-size:13px; display:none;" data-i18n="sidebar.loading">正在加载订阅源...</div>
@@ -725,6 +759,10 @@ function updateUI() {
   document.querySelectorAll('[data-tooltip]').forEach(el => {
     el.setAttribute('data-tooltip-text', t(el.getAttribute('data-tooltip')));
   });
+  const searchInput = document.getElementById('feedSearchInput');
+  if (searchInput) {
+    searchInput.placeholder = t('sidebar.search_placeholder');
+  }
   if (state.activeIdx === -1) {
     document.getElementById('currentFeedTitle').innerText = t('list.title_default');
     document.getElementById('listContainer').innerText = t('list.select_tip');
@@ -804,6 +842,7 @@ function renderSidebar() {
   const list = document.getElementById('feedList');
   list.innerHTML = '';
   state.allFeeds.forEach((f, i) => {
+    // ... 原有创建 div 的代码 ...
     const div = document.createElement('div');
     div.className = `feed-item ${i === state.activeIdx ? 'active' : ''}`;
     let iconUrl = f.type === 'rsshub' ? './RSSHub_logo.png' : `https://s2.googleusercontent.com/s2/favicons?domain_url=${new URL(f.url).origin}`;
@@ -811,6 +850,12 @@ function renderSidebar() {
     div.onclick = () => loadFeed(i);
     list.appendChild(div);
   });
+
+  // [新增] 渲染完后，立即检查搜索框是否有内容，如果有，重新过滤一遍
+  const searchInput = document.getElementById('feedSearchInput');
+  if (searchInput && searchInput.value) {
+    filterFeeds(searchInput.value);
+  }
 }
 
 // 辅助函数：渲染文章列表到界面
@@ -1730,6 +1775,22 @@ function handleOpmlImport(input) {
   
   // 2. 开始读取 (默认 UTF-8)
   reader.readAsText(file);
+}
+// 放在 renderSidebar 函数附近
+function filterFeeds(text) {
+  const term = text.toLowerCase().trim();
+  const items = document.querySelectorAll('.feed-item');
+  
+  items.forEach(item => {
+    // 获取订阅源名称
+    const name = item.querySelector('.feed-name').innerText.toLowerCase();
+    // 如果包含关键词，显示；否则隐藏
+    if (name.includes(term)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
 }
 </script>
 </body>
