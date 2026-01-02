@@ -979,9 +979,23 @@ function renderArticleBody(art) {
 }
 function updateTranslateBtnState(isTrans) {
   const btn = document.getElementById('btnTranslateFull');
-  const span = btn.querySelector('span');
-  if (isTrans) { span.innerText = t('content.toggle_original'); btn.classList.add('active'); } 
-  else { span.innerText = t('toolbar.translate_full'); btn.classList.remove('active'); }
+  const span = btn.querySelector('span'); // 尝试寻找 span
+  
+  // 逻辑修改：只有当 span 存在时，才去修改文字
+  if (span) {
+    if (isTrans) {
+      span.innerText = t('content.toggle_original');
+    } else {
+      span.innerText = t('toolbar.translate_full');
+    }
+  }
+
+  // 按钮的激活状态（变色）依然需要执行
+  if (isTrans) { 
+    btn.classList.add('active'); 
+  } else { 
+    btn.classList.remove('active'); 
+  }
 }
 /* ================== RSSHub Explorer Logic ================== */
 async function loadNamespaces() {
