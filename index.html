@@ -573,17 +573,15 @@ label.btn-ghost:hover {
     <div style="flex:1"></div>
     
     <!-- AI 功能区 (保持不变) -->
-    <div class="toolbar-group">
-      <button class="btn-icon" id="btnSummarize" onclick="actionSummarize(this)" data-tooltip="toolbar.tip_summarize">
-        <i class="fa-solid fa-wand-magic-sparkles"></i>
-      </button>
-      <button class="btn-icon" id="btnTranslateFull" onclick="actionTranslateFull(this)" data-tooltip="toolbar.tip_translate">
-        <i class="fa-solid fa-language"></i>
-      </button>
-      <button class="btn-icon" id="btnAskAI" onclick="actionAskAIFull(this)" data-tooltip="toolbar.tip_ask">
-        <i class="fa-solid fa-robot"></i>
-      </button>
-    </div>
+    <button class="btn-icon" id="btnSummarize" onclick="actionSummarize(this)" data-tooltip="toolbar.tip_summarize">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </button>
+    <button class="btn-icon" id="btnTranslateFull" onclick="actionTranslateFull(this)" data-tooltip="toolbar.tip_translate">
+      <i class="fa-solid fa-language"></i>
+    </button>
+    <button class="btn-icon" id="btnAskAI" onclick="actionAskAIFull(this)" data-tooltip="toolbar.tip_ask">
+      <i class="fa-solid fa-robot"></i>
+    </button>
     <button class="btn-icon mobile-hide" onclick="toggleFullScreen()" data-tooltip="content.fullscreen"><i class="fa-solid fa-expand"></i></button>
   </div>
 
