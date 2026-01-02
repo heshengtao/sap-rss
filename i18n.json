@@ -65,7 +65,12 @@
       "cache_desc": "间隔内再次点击不会消耗流量，直接加载本地数据。<br>点击“刷新”按钮可强制更新。",
       "lang_label": "界面语言 / Interface Language",
       "target_lang_label": "AI 翻译目标语言 / Target Language",
-      "btn_save": "保存配置"
+      "btn_save": "保存配置",
+      "opml_label": "导入 OPML 文件",
+      "opml_tip": "或者是... 从文件导入",
+      "opml_success": "成功导入 {n} 个订阅！",
+      "opml_error": "文件解析失败",
+      "importing": "正在导入..."
     },
     "explore": {
       "title": "RSSHub 发现",
@@ -144,7 +149,12 @@
       "cache_desc": "Data loads locally within this interval.<br>Click 'Refresh' to force update.",
       "lang_label": "Interface Language / 界面语言",
       "target_lang_label": "AI Translation Target / 目标语言",
-      "btn_save": "Save Config"
+      "btn_save": "Save Config",
+      "opml_label": "Import OPML File",
+      "opml_tip": "OR... Import from file",
+      "opml_success": "Successfully imported {n} feeds!",
+      "opml_error": "Failed to parse file",
+      "importing": "Importing..."
     },
     "explore": {
       "title": "RSSHub Explorer",

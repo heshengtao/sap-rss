@@ -388,6 +388,13 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 @media (max-width: 480px) {
   #articleContent.view-gallery #articleBody { column-count: 1; }
 }
+/* 文件上传按钮的 Hover 效果 */
+label.btn-ghost:hover {
+  background-color: #f0f0f0;
+  border-color: var(--accent) !important;
+  color: var(--accent);
+  cursor: pointer;
+}
 </style>
 </head>
 <body data-view="sidebar">
@@ -502,20 +509,40 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 <!-- 添加订阅 Modal -->
 <div id="addFeedModal" class="modal">
   <div class="modal-box">
-    <div class="modal-header"><span data-i18n="modals.add_title">添加订阅</span> <span onclick="closeModal('addFeedModal')" style="cursor:pointer">&times;</span></div>
-    <div class="form-group"><label data-i18n="modals.url_label">URL / 路由</label>
+    <div class="modal-header">
+      <span data-i18n="modals.add_title">添加订阅</span> 
+      <span onclick="closeModal('addFeedModal')" style="cursor:pointer">&times;</span>
+    </div>
+    
+    <!-- 原有的手动输入部分 -->
+    <div class="form-group">
+      <label data-i18n="modals.url_label">URL / 路由</label>
       <input type="text" id="feedInput" placeholder="/bilibili/ranking/0/3 or rsshub://...">
     </div>
     <div class="form-group">
       <label data-i18n="modals.name_label">订阅名称 (可选)</label>
       <input type="text" id="feedNameInput" placeholder="留空则自动生成">
     </div>
-    <div class="form-group"><label data-i18n="modals.type_label">类型</label>
+    <div class="form-group">
+      <label data-i18n="modals.type_label">类型</label>
       <select id="feedType">
         <option value="rsshub" data-i18n="modals.type_rsshub">RSSHub 路由</option>
         <option value="url" data-i18n="modals.type_url">普通 RSS URL</option>
       </select>
     </div>
+
+    <!-- [新增] OPML 导入区域 -->
+    <div style="margin: 20px 0; border-top: 1px dashed #eee; padding-top: 20px;">
+      <div style="font-size: 12px; color: #999; margin-bottom: 10px; text-align: center; text-transform: uppercase;" data-i18n="modals.opml_tip">
+        或者是... 从文件导入
+      </div>
+      <label class="btn btn-ghost" style="display:block; text-align:center; width:100%; border: 1px dashed #ccc; padding: 12px;">
+        <i class="fa-solid fa-file-import"></i> <span data-i18n="modals.opml_label">导入 OPML 文件</span>
+        <!-- 隐藏的文件输入框，通过 onchange 触发 -->
+        <input type="file" style="display:none" onchange="handleOpmlImport(this)">
+      </label>
+    </div>
+
     <div style="display:flex;justify-content:flex-end;gap:10px">
       <button class="btn btn-ghost" onclick="closeModal('addFeedModal')" data-i18n="modals.btn_cancel">取消</button>
       <button class="btn btn-primary" onclick="addFeed()" data-i18n="modals.btn_confirm">确认添加</button>
@@ -1612,6 +1639,97 @@ function renderArticleBody(art) {
 
   // 滚动回顶部
   document.getElementById('articleScrollArea').scrollTop = 0;
+}
+/* ================== OPML Import Logic (增强版) ================== */
+function handleOpmlImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // UI 反馈
+  const labelSpan = input.parentElement.querySelector('span');
+  const originalText = labelSpan.innerText;
+  labelSpan.innerText = t('modals.importing'); // "正在导入..."
+
+  const reader = new FileReader();
+  
+  // 1. 读取完成后的回调
+  reader.onload = async (e) => {
+    try {
+      let text = e.target.result;
+      const parser = new DOMParser();
+      
+      // --- 第一次尝试解析 ---
+      let doc = parser.parseFromString(text, "text/xml");
+      
+      // --- 如果失败，尝试自动修复 (针对 & 符号) ---
+      if (doc.querySelector('parsererror')) {
+        console.warn("第一次解析失败，尝试自动修复非法字符 (& -> &amp;)...");
+        // 正则：将所有后面不是实体字符的 & 替换为 &amp;
+        text = text.replace(/&(?!(amp|lt|gt|quot|apos);)/g, '&amp;');
+        doc = parser.parseFromString(text, "text/xml");
+      }
+
+      // --- 如果还是失败，抛出详细错误 ---
+      const errorNode = doc.querySelector('parsererror');
+      if (errorNode) {
+        throw new Error(errorNode.textContent || "XML format violation");
+      }
+
+      // --- 解析成功，开始提取数据 ---
+      // 查找所有 xmlUrl 属性 (兼容 rss, outline 等标签)
+      const outlines = doc.querySelectorAll('[xmlUrl]');
+      let count = 0;
+
+      outlines.forEach(node => {
+        const url = node.getAttribute('xmlUrl');
+        // 优先取 title，如果没有则取 text，最后取 'Untitled'
+        const title = node.getAttribute('title') || node.getAttribute('text') || 'Untitled';
+        
+        if (!url) return;
+
+        // 查重：检查是否已存在
+        const exists = state.allFeeds.some(f => f.url === url);
+        if (!exists) {
+          // 自动判断类型
+          let type = 'url';
+          if (url.includes('rsshub') || (url.startsWith('/') && !url.startsWith('http'))) {
+            type = 'rsshub';
+          }
+
+          state.userFeeds.push({
+            title: title,
+            url: url,
+            type: type
+          });
+          count++;
+        }
+      });
+
+      if (count > 0) {
+        saveUserFeeds();
+        updateAllFeeds();
+        // 提示成功
+        alert(t('modals.opml_success').replace('{n}', count));
+        closeModal('addFeedModal');
+        renderSidebar();
+        // 如果当前没有选中文章，加载新导入的第一个
+        if (state.activeIdx === -1) loadFeed(state.allFeeds.length - count);
+      } else {
+        alert("未发现有效的新订阅源 (No valid feeds found)");
+      }
+
+    } catch (err) {
+      console.error("OPML Import Error:", err);
+      // 弹窗显示具体的错误信息，方便调试
+      alert(`${t('modals.opml_error')}\n\n错误详情: ${err.message.slice(0, 100)}`);
+    } finally {
+      input.value = ''; // 清空，允许重复上传同一文件
+      labelSpan.innerText = originalText;
+    }
+  };
+  
+  // 2. 开始读取 (默认 UTF-8)
+  reader.readAsText(file);
 }
 </script>
 </body>
