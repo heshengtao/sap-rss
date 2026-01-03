@@ -49,13 +49,6 @@
     "description_en": "Essays by Silicon Valley venture capitalist Paul Graham on startups, programming, and philosophy."
   },
   {
-    "name": "Pixiv",
-    "url": "http://pixiv.net.cn/feed",
-    "category": "Art",
-    "description_zh": "全球知名的插画、漫画与小说创作交流平台。",
-    "description_en": "A leading global community for creators to share illustrations, manga, and novels."
-  },
-  {
     "name": "Smashing Magazine",
     "url": "https://www.smashingmagazine.com/feed",
     "category": "Design",
