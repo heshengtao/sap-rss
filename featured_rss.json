@@ -8,7 +8,7 @@
   },
   {
     "name": "Hacker News",
-    "url": "https://news.ycombinator.com/rss",
+    "url": "https://api.newshacker.me/rss",
     "category": "Tech",
     "description_zh": "全球极客与创业者的每日必读，聚合高质量的计算机科学与创投资讯。",
     "description_en": "Essential daily reading for geeks and founders, aggregating high-quality CS and startup news."
