@@ -22,6 +22,7 @@
       "error_backend": "后端错误",
       "error_xml": "XML 解析失败",
       "error_empty": "源内容为空",
+      "error_no_hub": "请先在设置中配置 RSSHub 实例地址", 
       "refresh": "刷新列表"
     },
     "content": {
@@ -79,7 +80,7 @@
       "site_explore_title": "精选 RSS 站点",
       "site_search_placeholder": "搜索站点名称或描述...",
       "btn_use": "添加此源",
-      "settings_clear_cache": "清理所有缓存数据",
+      "settings_clear_cache": "清理缓存",
       "magazine_hours_label": "AI 杂志收录范围 (小时)",
       "magazine_title": "我的 AI 杂志",
       "btn_create_magazine": "生成新刊",
@@ -90,7 +91,11 @@
       "magazine_process_done": "完成！杂志已入库。",
       "magazine_empty": "暂无历史杂志，点击下方按钮生成。",
       "view_magazine": "阅读",
-      "delete_magazine": "删除"
+      "delete_magazine": "删除",
+      "hub_tip_title": "未配置默认服务",
+      "hub_tip_desc": "为确保服务可用性与隐私，请选择：",
+      "hub_tip_public": "寻找公共实例列表",
+      "hub_tip_deploy": "查看自部署教程"
     },
     "explore": {
       "title": "RSSHub 发现",
@@ -126,6 +131,7 @@
       "error_backend": "Backend Error",
       "error_xml": "XML Parse Error",
       "error_empty": "Feed is empty",
+      "error_no_hub": "Please configure RSSHub URL in settings first",
       "refresh": "Refresh List"
     },
     "content": {
@@ -183,7 +189,7 @@
       "site_explore_title": "Featured RSS Sites",
       "site_search_placeholder": "Search sites...",
       "btn_use": "Add Feed",
-      "settings_clear_cache": "Clear All Cache",
+      "settings_clear_cache": "Clear Cache",
       "magazine_hours_label": "Magazine Time Range (Hours)",
       "magazine_title": "My AI Magazines",
       "btn_create_magazine": "Generate New Issue",
@@ -194,7 +200,11 @@
       "magazine_process_done": "Done! Saved to library.",
       "magazine_empty": "No magazines yet. Create one below.",
       "view_magazine": "Read",
-      "delete_magazine": "Delete"
+      "delete_magazine": "Delete",
+      "hub_tip_title": "No Default Service",
+      "hub_tip_desc": "For availability and privacy, please choose:",
+      "hub_tip_public": "Find Public Instances",
+      "hub_tip_deploy": "Deploy Your Own Guide"
     },
     "explore": {
       "title": "RSSHub Explorer",
