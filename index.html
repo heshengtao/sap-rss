@@ -927,7 +927,7 @@ let state = {
   },
   activeIdx: -1, articles: [], currentArticle: null, ws: null, i18nData: {},
   // Explorer State
-  namespaces: [], currentNs: null, featuredData: null
+  namespaces: [], currentNs: null
 };
 if (!['zh', 'en'].includes(state.settings.lang)) state.settings.lang = 'zh';
 /* ================== 初始化 ================== */
@@ -1231,12 +1231,6 @@ async function loadNamespaces() {
 function renderNamespaces(filterText = "") {
   const listEl = document.getElementById('nsList');
   listEl.innerHTML = "";
-  // Always render the Featured button at the top
-  const featuredDiv = document.createElement('div');
-  featuredDiv.className = `ns-item special-item ${state.currentNs === 'FEATURED_HOME' ? 'active' : ''}`;
-  featuredDiv.innerHTML = '<i class="fa-solid fa-fire"></i> 热门推荐';
-  featuredDiv.onclick = () => loadFeatured();
-  listEl.appendChild(featuredDiv);
   const filtered = state.namespaces.filter(ns => ns.toLowerCase().includes(filterText.toLowerCase()));
   filtered.forEach(ns => {
     const div = document.createElement('div');
@@ -1250,62 +1244,7 @@ function filterNamespaces() {
   const val = document.getElementById('nsFilter').value;
   renderNamespaces(val);
 }
-// 加载热门推荐 JSON
-async function loadFeatured() {
-  state.currentNs = 'FEATURED_HOME';
-  renderNamespaces(document.getElementById('nsFilter').value); // Re-render sidebar to highlight "Featured"
-  const routeListEl = document.getElementById('routeList');
-  routeListEl.innerHTML = `<div style="text-align:center; padding:50px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i> Loading featured routes...</div>`;
-  if (!state.featuredData) {
-    try {
-      const res = await fetch('./featured_routes.json');
-      if (!res.ok) throw new Error('Failed to load JSON');
-      state.featuredData = await res.json();
-    } catch(e) {
-      routeListEl.innerHTML = `<div style="padding:20px; color:red">Failed to load featured routes.<br>${e.message}</div>`;
-      return;
-    }
-  }
-  renderFeaturedView();
-}
-function renderFeaturedView() {
-  const routeListEl = document.getElementById('routeList');
-  routeListEl.innerHTML = "";
-  if (!state.featuredData || !state.featuredData.length) {
-    routeListEl.innerHTML = `<div style="padding:20px; color:#999">No featured routes defined.</div>`;
-    return;
-  }
-  state.featuredData.forEach(group => {
-    // 渲染分组标题
-    const groupTitle = document.createElement('div');
-    groupTitle.className = 'featured-group-title';
-    groupTitle.innerText = group.category;
-    routeListEl.appendChild(groupTitle);
-    // 渲染组内路由
-    group.routes.forEach(route => {
-       const div = document.createElement('div');
-       div.className = "route-item";
-       div.innerHTML = `
-        <div class="route-header">
-          <div>
-            <div class="route-title">${route.name}</div>
-            <div class="route-path-preview">${route.path}</div>
-          </div>
-        </div>
-        <div style="margin-top:8px; font-size:12px; color:#666; line-height:1.4">
-          ${route.desc}
-        </div>
-        <div style="overflow:hidden">
-            <button class="use-btn" onclick="selectRoute('${route.path}', '${route.name}')">
-              <i class="fa-solid fa-check"></i> 使用 / Use
-            </button>
-        </div>
-       `;
-       // 这里不需要点击展开详情，因为已经展示了，直接给 hover 效果即可
-       routeListEl.appendChild(div);
-    });
-  });
-}
+
 // 支持 Markdown-it + Container 渲染和路径拼接
 async function loadRoutes(ns) {
   state.currentNs = ns;
@@ -1789,8 +1728,14 @@ function openModal(id) {
   if(id === 'exploreModal') {
     // 默认打开时，如果还没加载 namespace，加载它们
     if(state.namespaces.length === 0) loadNamespaces();
-    // 默认显示热门
-    loadFeatured();
+    
+    // [新增] 重置右侧显示为提示信息
+    document.getElementById('routeList').innerHTML = `<div style="text-align:center; padding:50px; color:#999" data-i18n="explore.select_ns_tip">${t('explore.select_ns_tip')}</div>`;
+    
+    // [新增] 清除当前的选中状态
+    state.currentNs = null;
+    // 重新渲染侧边栏以移除高亮
+    renderNamespaces(document.getElementById('nsFilter').value);
   }
   if (id === 'rssSiteModal') {
     document.getElementById('rssSiteSearch').placeholder = t('modals.site_search_placeholder');
