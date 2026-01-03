@@ -510,6 +510,34 @@ label.btn-ghost:hover {
 .rss-card-btn:hover {
   opacity: 0.9;
 }
+/* 杂志卡片样式 */
+.mag-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px;
+  transition: all .2s; cursor: pointer;
+}
+.mag-item:hover { border-color: var(--accent); background: #fdfaff; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.1); }
+.mag-info h4 { font-size: 16px; margin-bottom: 4px; color: #333; }
+.mag-info p { font-size: 12px; color: #888; }
+.mag-actions { display: flex; gap: 8px; }
+
+/* 杂志阅读视图特定样式 */
+#articleContent.view-magazine { max-width: 800px; margin: 0 auto; }
+.magazine-cover {
+  text-align: center; padding: 40px 0; border-bottom: 2px solid #333; margin-bottom: 30px;
+  background: radial-gradient(circle at center, #fdfaff 0%, #fff 100%);
+}
+.magazine-title { font-family: "Georgia", serif; font-size: 42px; font-weight: bold; color: #2c3e50; letter-spacing: -1px; }
+.magazine-date { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+.magazine-toc { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 40px; border: 1px solid #e9ecef; }
+.magazine-toc h3 { font-size: 14px; text-transform: uppercase; color: #888; margin-bottom: 15px; letter-spacing: 1px; }
+.toc-link { display: block; padding: 8px 0; border-bottom: 1px dashed #eee; color: #333; text-decoration: none; font-size: 15px; transition: .2s; }
+.toc-link:hover { padding-left: 10px; color: var(--accent); }
+.mag-article { margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #eee; }
+.mag-article-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #000; }
+.mag-article-meta { font-size: 12px; color: #999; margin-bottom: 15px; }
+.mag-article-summary { font-size: 16px; line-height: 1.8; color: #444; background: #fff; }
+.mag-article-summary strong { color: var(--accent); }
 </style>
 </head>
 <body data-view="sidebar">
@@ -519,13 +547,15 @@ label.btn-ghost:hover {
     <span data-i18n="sidebar.title">我的订阅</span>
     <!-- Flex 布局，使按钮横向排列 -->
     <div style="display: flex; align-items: center; gap: 2px;">
+      <button class="btn-icon" onclick="openModal('magazineListModal')" data-tooltip="sidebar.magazine">
+        <i class="fa-solid fa-book-open" style="color: var(--accent);"></i>
+      </button>
       <button class="btn-icon" onclick="openModal('rssSiteModal')" data-tooltip="sidebar.site_explore">
         <i class="fa-solid fa-globe"></i>
       </button>
       <button class="btn-icon" onclick="openModal('exploreModal')" data-tooltip="sidebar.explore"><i class="fa-solid fa-compass"></i></button>
       <button class="btn-icon" onclick="openModal('addFeedModal')" data-tooltip="sidebar.add"><i class="fa-solid fa-plus"></i></button>
       <button class="btn-icon" onclick="openModal('settingsModal')" data-tooltip="sidebar.settings"><i class="fa-solid fa-cog"></i></button>
-      <button class="btn-icon" onclick="clearCache()" data-tooltip="sidebar.clear_cache"><i class="fa-solid fa-trash-can"></i></button>
     </div>
   </div>
   <div class="sidebar-search">
@@ -755,15 +785,64 @@ label.btn-ghost:hover {
         间隔内再次点击不会消耗流量，直接加载本地数据。<br>点击"刷新"按钮可强制更新。
       </div>
     </div>
+    <!-- 在 settingsModal 的 modal-box 内部，保存按钮之前 -->
+    <div class="form-group">
+      <label data-i18n="modals.magazine_hours_label">AI 杂志收录范围 (小时)</label>
+      <input type="number" id="magazineHours" min="1" value="24">
+    </div>
+
+    <div class="form-group" style="border-top: 1px dashed #eee; padding-top: 15px; margin-top: 15px;">
+      <button class="btn btn-ghost" style="width:100%; color: #ff4d4f;" onclick="clearCache()">
+        <i class="fa-solid fa-trash-can"></i> <span data-i18n="modals.settings_clear_cache">清理所有缓存</span>
+      </button>
+    </div>
     <div style="display:flex;justify-content:flex-end;gap:10px">
       <button class="btn btn-primary" style="width:100%" onclick="saveSettings()" data-i18n="modals.btn_save">保存配置</button>
     </div>
   </div>
 </div>
+<!-- 杂志列表 Modal -->
+<div id="magazineListModal" class="modal">
+  <div class="modal-box" style="height: 70vh;">
+    <div class="modal-header">
+      <span data-i18n="modals.magazine_title">我的 AI 杂志</span> 
+      <span onclick="closeModal('magazineListModal')" style="cursor:pointer">&times;</span>
+    </div>
+    <div id="magazineContainer" style="flex:1; overflow-y:auto; padding: 5px;">
+      <!-- 列表将渲染在这里 -->
+    </div>
+    <div style="margin-top:15px; text-align:center;">
+      <button class="btn btn-primary" style="width:100%; background: var(--accent);" onclick="startMagazineGeneration()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="modals.btn_create_magazine">生成新刊</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 生成进度 Modal (不可关闭) -->
+<div id="magazineProgressModal" class="modal" style="z-index: 2005;">
+  <div class="modal-box">
+    <div class="modal-header" style="color:var(--accent)">
+      <span data-i18n="modals.magazine_generating_title">正在印制杂志...</span>
+    </div>
+    <div style="text-align:center; margin-bottom: 20px;">
+      <i class="fa-solid fa-robot fa-bounce" style="font-size: 40px; color: var(--accent); margin: 20px 0;"></i>
+    </div>
+    <div id="magLog" style="height: 150px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 6px; font-size: 12px; font-family: monospace; border:1px solid #eee;">
+      Initializing...
+    </div>
+    <div id="magCurrentTask" style="margin-top:10px; font-weight:bold; font-size:13px; color:#333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+    
+    <!-- 实时预览流式文字 -->
+    <div id="magLiveStream" style="margin-top:10px; padding:10px; background:#f0f8ff; border-left:3px solid var(--accent); font-size:12px; height:60px; overflow:hidden; opacity:0.7;"></div>
+
+    <button id="btnStopMag" class="btn btn-ghost" style="margin-top:15px" onclick="stopMagazineGen()">Stop</button>
+  </div>
+</div>
 <script>
 /* ================== DB Helper (IndexedDB) ================== */
 const DB_NAME = 'RSS_Reader_DB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; 
 const dbHelper = {
   db: null,
   async open() {
@@ -774,6 +853,8 @@ const dbHelper = {
         const db = e.target.result;
         if (!db.objectStoreNames.contains('feed_cache')) db.createObjectStore('feed_cache', { keyPath: 'url' });
         if (!db.objectStoreNames.contains('article_meta')) db.createObjectStore('article_meta', { keyPath: 'id' });
+        // [新增] 杂志存储
+        if (!db.objectStoreNames.contains('magazines')) db.createObjectStore('magazines', { keyPath: 'id' });
       };
       req.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
       req.onerror = (e) => reject(e);
@@ -812,7 +893,8 @@ let state = {
     hub: localStorage.getItem('rss_hub') || CONFIG.defaultHub,
     cacheTime: parseInt(localStorage.getItem('rss_cache_time')) || CONFIG.defaultCacheTime,
     lang: localStorage.getItem('rss_lang') || navigator.language.split('-')[0] || CONFIG.defaultLang,
-    targetLang: localStorage.getItem('rss_target_lang') || "Simplified Chinese"
+    targetLang: localStorage.getItem('rss_target_lang') || "Simplified Chinese",
+    magazineHours: parseInt(localStorage.getItem('rss_mag_hours')) || 24
   },
   activeIdx: -1, articles: [], currentArticle: null, ws: null, i18nData: {},
   // Explorer State
@@ -1065,27 +1147,6 @@ function showArt(i, el) {
   if(el) el.classList.add('active');
   state.currentArticle = state.articles[i];
   renderArticleBody(state.currentArticle);
-}
-function renderArticleBody(art) {
-  document.getElementById('placeholder').style.display='none';
-  document.getElementById('articleContent').style.display='block';
-  document.getElementById('artDate').innerText = art.date;
-  document.getElementById('artLink').href = art.link;
-  const summarySec = document.getElementById('aiSummarySection');
-  const bodyEl = document.getElementById('articleBody');
-  const titleEl = document.getElementById('artTitle');
-  if (art.aiSummary) { summarySec.style.display = 'block'; document.getElementById('aiSummaryContent').innerHTML = art.aiSummary; } 
-  else { summarySec.style.display = 'none'; }
-  if (art.showingTranslation && art.aiTranslation) {
-    bodyEl.innerHTML = art.aiTranslation;
-    titleEl.innerText = art.aiTitleTranslation || art.title;
-    updateTranslateBtnState(true);
-  } else {
-    bodyEl.innerHTML = art.desc;
-    titleEl.innerText = art.title;
-    updateTranslateBtnState(false);
-  }
-  document.querySelector('.article-scroll-area').scrollTop=0;
 }
 function updateTranslateBtnState(isTrans) {
   const btn = document.getElementById('btnTranslateFull');
@@ -1643,6 +1704,8 @@ function saveSettings() {
     state.settings.hub = document.getElementById('rsshubUrl').value.replace(/\/$/, '');
     state.settings.cacheTime = parseInt(document.getElementById('cacheDuration').value) || 30;
     state.settings.targetLang = document.getElementById('targetLangSelect').value;
+    state.settings.magazineHours = parseInt(document.getElementById('magazineHours').value) || 24;
+    localStorage.setItem('rss_mag_hours', state.settings.magazineHours);
     localStorage.setItem('rss_hub', state.settings.hub);
     localStorage.setItem('rss_cache_time', state.settings.cacheTime);
     localStorage.setItem('rss_target_lang', state.settings.targetLang);
@@ -1674,7 +1737,8 @@ function openModal(id) {
   if(id === 'settingsModal') { 
     document.getElementById('rsshubUrl').value = state.settings.hub; 
     document.getElementById('cacheDuration').value = state.settings.cacheTime; 
-    document.getElementById('targetLangSelect').value = state.settings.targetLang; 
+    document.getElementById('targetLangSelect').value = state.settings.targetLang;
+    document.getElementById('magazineHours').value = state.settings.magazineHours; 
   } 
   if(id === 'addFeedModal') { 
     document.getElementById('feedInput').value = ''; 
@@ -1695,6 +1759,9 @@ function openModal(id) {
       document.getElementById('rssSiteSearch').value = '';
       renderRssSites(state.featuredRss);
     }
+  }
+  if (id === 'magazineListModal') {
+    loadMagazineList();
   }
 }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -1775,7 +1842,21 @@ function autoDetectViewMode(htmlContent) {
 function renderArticleBody(art) {
   document.getElementById('placeholder').style.display='none';
   const contentEl = document.getElementById('articleContent');
-  contentEl.style.display='block';
+
+  // 1. 强制显示普通文章容器
+  contentEl.style.display = 'block';
+  
+  // 2. 关键修复：强制恢复头部显示
+  document.getElementById('articleHeader').style.display = 'block';
+  document.getElementById('aiSummarySection').style.display = 'none'; // 默认隐藏总结，下面有判断会开
+
+  // 3. 关键修复：移除杂志视图的专用类，防止样式污染
+  contentEl.classList.remove('view-magazine');
+  
+  // 4. 恢复之前的视图模式 (Blog 或 Gallery)
+  // 确保 currentViewMode 变量存在，如果不存在则默认为 'blog'
+  if (typeof currentViewMode === 'undefined') currentViewMode = 'blog';
+  changeViewMode(currentViewMode);
   
   document.getElementById('artDate').innerText = art.date;
   document.getElementById('artLink').href = art.link;
@@ -2011,6 +2092,317 @@ function selectRssSite(url, name) {
   input.style.background = '#e6fffa';
   setTimeout(() => input.style.background = '#fafafa', 500);
 }
+/* ================== AI Magazine Logic ================== */
+
+let isGeneratingMag = false;
+let stopGenFlag = false;
+
+// 1. 加载历史杂志列表
+async function loadMagazineList() {
+  const container = document.getElementById('magazineContainer');
+  container.innerHTML = '<div class="spinner"></div>';
+  try {
+    const db = await dbHelper.open();
+    const tx = db.transaction('magazines', 'readonly');
+    const req = tx.objectStore('magazines').getAll();
+    req.onsuccess = () => {
+      const list = req.result.sort((a,b) => b.id - a.id); // 按时间倒序
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:#999">${t('modals.magazine_empty')}</div>`;
+        return;
+      }
+      container.innerHTML = '';
+      list.forEach(mag => {
+        const div = document.createElement('div');
+        div.className = 'mag-item';
+        div.innerHTML = `
+          <div class="mag-info" onclick="viewMagazine(${mag.id})">
+             <h4>${mag.title}</h4>
+             <p>${new Date(mag.id).toLocaleString()} · ${mag.articleCount} Articles</p>
+          </div>
+          <div class="mag-actions">
+            <button class="btn-icon" onclick="deleteMagazine(${mag.id}, event)" style="color:#ff4d4f"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    };
+  } catch(e) { console.error(e); }
+}
+
+// 2. 开始生成流程
+async function startMagazineGeneration() {
+  closeModal('magazineListModal');
+  openModal('magazineProgressModal');
+  document.getElementById('btnStopMag').innerText = "Stop";
+  isGeneratingMag = true;
+  stopGenFlag = false;
+  
+  const logEl = document.getElementById('magLog');
+  const taskEl = document.getElementById('magCurrentTask');
+  const liveEl = document.getElementById('magLiveStream');
+  const log = (msg) => { 
+    const div = document.createElement('div'); 
+    div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`; 
+    logEl.appendChild(div); 
+    logEl.scrollTop = logEl.scrollHeight; 
+  };
+  
+  logEl.innerHTML = ''; 
+  liveEl.innerHTML = '';
+  
+  try {
+    // A. 收集文章
+    log(t('modals.magazine_process_fetching'));
+    const hours = state.settings.magazineHours;
+    const cutoff = Date.now() - (hours * 60 * 60 * 1000);
+    let candidates = [];
+    
+    // 遍历所有订阅源
+    for (let i = 0; i < state.allFeeds.length; i++) {
+      if (stopGenFlag) break;
+      const feed = state.allFeeds[i];
+      taskEl.innerText = `Fetching: ${getTrTitle(feed.title)}`;
+      try {
+        // 强制使用缓存优先，如果缓存太旧 (超过缓存时间) fetchRSS 会自动更新，
+        // 这里我们可以为了速度，稍微放宽一点缓存策略，或者直接调用 fetchRSS
+        const res = await fetchRSS(feed, false); 
+        const freshItems = res.data.filter(item => new Date(item.date).getTime() > cutoff);
+        // 附带 Feed 信息
+        freshItems.forEach(item => item.sourceTitle = getTrTitle(feed.title));
+        candidates.push(...freshItems);
+        log(`- ${getTrTitle(feed.title)}: Found ${freshItems.length} new articles.`);
+      } catch (e) {
+        log(`x Failed to fetch ${getTrTitle(feed.title)}`);
+      }
+    }
+    
+    if (stopGenFlag) throw new Error("Stopped by user.");
+    
+    // 去重 (根据 link)
+    const uniqueMap = new Map();
+    candidates.forEach(item => uniqueMap.set(item.link, item));
+    candidates = Array.from(uniqueMap.values());
+    
+    // 按时间倒序
+    candidates.sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    if (candidates.length === 0) {
+      log("No articles found in this time range.");
+      document.getElementById('btnStopMag').innerText = "Close";
+      return;
+    }
+    
+    log(t('modals.magazine_process_analyzing') + ` Total: ${candidates.length}`);
+    
+    // B. 逐个总结 (Visual Process)
+    const summarizedArticles = [];
+    
+    for (let i = 0; i < candidates.length; i++) {
+      if (stopGenFlag) break;
+      const art = candidates[i];
+      taskEl.innerText = `${i+1}/${candidates.length}: ${art.title}`;
+      
+      // 读取缓存
+      let cachedMeta = await dbHelper.get('article_meta', art.link) || {};
+      let summaryText = "";
+      let titleTransText = ""; // [新增] 用于存储翻译后的标题
+
+      // ================== 1. 处理标题翻译 ==================
+      if (cachedMeta.titleTranslation) {
+        titleTransText = cachedMeta.titleTranslation;
+        log(`> [Title] Loaded from cache`);
+      } else {
+        log(`> [Title] Translating...`);
+        liveEl.innerText = "Translating Title...";
+        
+        // 只有标题没有翻译时，才请求 AI
+        await new Promise((resolve) => {
+          let buf = "";
+          streamAIRequest(
+            `Translate the title to ${state.settings.targetLang}. Return ONLY the translation.`,
+            art.title,
+            (c) => { buf += c; },
+            async () => {
+              titleTransText = buf.trim();
+              // 更新缓存 (合并旧数据)
+              cachedMeta = await dbHelper.get('article_meta', art.link) || {};
+              cachedMeta.id = art.link; // 确保主键存在
+              cachedMeta.titleTranslation = titleTransText;
+              cachedMeta.timestamp = Date.now();
+              await dbHelper.put('article_meta', cachedMeta);
+              resolve();
+            }
+          ).catch(() => resolve()); // 失败忽略，继续下一步
+        });
+      }
+
+      // ================== 2. 处理内容总结 ==================
+      if (cachedMeta.summary) {
+        log(`> [Summary] Loaded from cache`);
+        summaryText = cachedMeta.summary;
+      } else {
+        log(`${t('modals.magazine_process_article')} ${art.title.substr(0,15)}...`);
+        liveEl.innerText = "AI Summarizing...";
+        
+        const tempDiv = document.createElement('div'); tempDiv.innerHTML = art.desc;
+        const rawText = tempDiv.innerText.replace(/\s+/g, ' ').slice(0, 3000);
+        
+        await new Promise((resolve) => {
+          let buffer = "";
+          streamAIRequest(
+            `Summarize in 3 bullet points in ${state.settings.targetLang}. Be concise.`,
+            rawText,
+            (chunk) => {
+               if(stopGenFlag) return;
+               buffer += chunk;
+               liveEl.innerText = buffer;
+            },
+            async () => {
+               const md = window.markdownit();
+               const htmlSummary = md.render(buffer);
+               
+               // 更新缓存
+               cachedMeta = await dbHelper.get('article_meta', art.link) || {};
+               cachedMeta.id = art.link;
+               cachedMeta.summary = htmlSummary;
+               cachedMeta.timestamp = Date.now();
+               await dbHelper.put('article_meta', cachedMeta);
+               
+               summaryText = htmlSummary;
+               resolve();
+            }
+          ).catch(() => resolve());
+        });
+      }
+      
+      // 将结果推入数组
+      summarizedArticles.push({
+        title: titleTransText || art.title, // [修改] 优先使用翻译标题
+        originalTitle: art.title,           // [新增] 保留原标题以备查阅
+        link: art.link,
+        date: art.date,
+        source: art.sourceTitle,
+        summary: summaryText,
+        image: art.image
+      });
+      
+      await new Promise(r => setTimeout(r, 500));
+    }
+ 
+    if (stopGenFlag) throw new Error("Stopped.");
+
+    // C. 生成杂志并存储
+    const magId = Date.now();
+    const magazineData = {
+      id: magId,
+      title: `AI Digest #${new Date().toLocaleDateString()}`,
+      created: Date.now(),
+      articleCount: summarizedArticles.length,
+      articles: summarizedArticles
+    };
+    
+    await dbHelper.put('magazines', magazineData);
+    log(t('modals.magazine_process_done'));
+    taskEl.innerText = "Completed!";
+    document.getElementById('btnStopMag').innerText = "Close";
+    
+    // 自动打开刚刚生成的杂志
+    closeModal('magazineProgressModal');
+    viewMagazine(magId);
+
+  } catch(e) {
+    log(`Error: ${e.message}`);
+    document.getElementById('btnStopMag').innerText = "Close";
+  } finally {
+    isGeneratingMag = false;
+  }
+}
+
+function stopMagazineGen() {
+  if (isGeneratingMag) {
+    stopGenFlag = true;
+    document.getElementById('magLog').innerHTML += `<div>!!! USER STOPPED !!!</div>`;
+  } else {
+    closeModal('magazineProgressModal');
+  }
+}
+
+// 3. 查看杂志 (渲染视图)
+async function viewMagazine(id) {
+  closeModal('magazineListModal');
+  navTo('content'); // 切到内容页
+  
+  const contentEl = document.getElementById('articleContent');
+  const scrollArea = document.getElementById('articleScrollArea');
+  const db = await dbHelper.open();
+  const tx = db.transaction('magazines', 'readonly');
+  const req = tx.objectStore('magazines').get(id);
+  
+  req.onsuccess = () => {
+    const mag = req.result;
+    if (!mag) return alert("Magazine not found");
+    
+    document.getElementById('placeholder').style.display = 'none';
+    contentEl.style.display = 'block';
+    
+    // 切换到特殊的杂志 CSS 模式
+    contentEl.className = ''; // 清除 blog/gallery
+    contentEl.classList.add('view-magazine');
+    
+    // 隐藏普通 Header，使用杂志封面
+    document.getElementById('articleHeader').style.display = 'none';
+    document.getElementById('aiSummarySection').style.display = 'none';
+    
+    // 构建 HTML
+    let tocHtml = `<div class="magazine-toc"><h3>${t('content.magazine_toc')}</h3>`;
+    let bodyHtml = `<div class="magazine-cover">
+      <div class="magazine-title">${t('content.magazine_cover_title')}</div>
+      <div class="magazine-date">${new Date(mag.created).toLocaleDateString()} · ${mag.articles.length} Stories</div>
+    </div>`;
+    
+    // 生成目录和正文
+    let articlesHtml = '';
+    mag.articles.forEach((art, idx) => {
+      const anchor = `mag-art-${idx}`;
+      tocHtml += `<a class="toc-link" style="cursor: pointer;" onclick="document.getElementById('${anchor}').scrollIntoView({behavior:'smooth'})">
+        ${idx+1}. ${art.title}
+      </a>`;
+      articlesHtml += `
+        <div id="${anchor}" class="mag-article">
+          <div class="mag-article-title"><a href="${art.link}" target="_blank" style="text-decoration:none; color:inherit">${art.title}</a></div>
+          ${(art.originalTitle && art.originalTitle !== art.title) ? 
+            `<div style="font-size:14px; color:#888; margin-bottom:5px;">${art.originalTitle}</div>` : ''}
+          <div class="mag-article-meta">
+            <span>${art.source}</span> · <span>${art.date}</span>
+             <a href="${art.link}" target="_blank" style="margin-left:10px; color:var(--accent)"><i class="fa-solid fa-external-link-alt"></i></a>
+          </div>
+          ${art.image ? `<img src="${art.image}" style="max-width:100%; border-radius:6px; margin-bottom:15px; max-height:300px; object-fit:cover;">` : ''}
+          <div class="mag-article-summary markdown-body">
+            ${art.summary || '<p style="color:#999;font-style:italic">No summary available.</p>'}
+          </div>
+        </div>
+      `;
+    });
+    
+    tocHtml += `</div>`;
+    
+    document.getElementById('articleBody').innerHTML = tocHtml + articlesHtml;
+    scrollArea.scrollTop = 0;
+  };
+}
+
+// 4. 删除杂志
+async function deleteMagazine(id, e) {
+  e.stopPropagation();
+  if(!confirm(t('alerts.delete_confirm'))) return;
+  const db = await dbHelper.open();
+  const tx = db.transaction('magazines', 'readwrite');
+  tx.objectStore('magazines').delete(id);
+  tx.oncomplete = () => loadMagazineList();
+}
+
+/* ================== End AI Magazine Logic ================== */
 </script>
 </body>
 </html>

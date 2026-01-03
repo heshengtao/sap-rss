@@ -9,7 +9,8 @@
       "settings": "设置",
       "explore": "RSSHub 发现",
       "search_placeholder": "搜索订阅...",
-      "site_explore": "RSS 站点大全"
+      "site_explore": "RSS 站点大全",
+      "magazine": "AI 每日杂志"
     },
     "list": {
       "title_default": "文章列表",
@@ -31,7 +32,9 @@
       "toggle_original": "显示原文",
       "toggle_translated": "显示译文",
       "translating_title": "标题翻译中...",
-      "fullscreen": "全屏阅读"
+      "fullscreen": "全屏阅读",
+      "magazine_cover_title": "AI Digest",
+      "magazine_toc": "目录 / Table of Contents"
     },
     "toolbar": {
       "translate": "选中翻译",
@@ -75,7 +78,19 @@
       "importing": "正在导入...",
       "site_explore_title": "精选 RSS 站点",
       "site_search_placeholder": "搜索站点名称或描述...",
-      "btn_use": "添加此源"
+      "btn_use": "添加此源",
+      "settings_clear_cache": "清理所有缓存数据",
+      "magazine_hours_label": "AI 杂志收录范围 (小时)",
+      "magazine_title": "我的 AI 杂志",
+      "btn_create_magazine": "生成新刊",
+      "magazine_generating_title": "正在印制杂志...",
+      "magazine_process_fetching": "正在获取订阅源...",
+      "magazine_process_analyzing": "正在筛选文章 (24h内)...",
+      "magazine_process_article": "AI 正在阅读并总结: ",
+      "magazine_process_done": "完成！杂志已入库。",
+      "magazine_empty": "暂无历史杂志，点击下方按钮生成。",
+      "view_magazine": "阅读",
+      "delete_magazine": "删除"
     },
     "explore": {
       "title": "RSSHub 发现",
@@ -98,7 +113,8 @@
       "settings": "Settings",
       "explore": "Explore RSSHub",
       "search_placeholder": "Filter feeds...",
-      "site_explore": "RSS Site Directory"
+      "site_explore": "RSS Site Directory",
+      "magazine": "AI Magazine"
     },
     "list": {
       "title_default": "Article List",
@@ -120,7 +136,9 @@
       "toggle_original": "Show Original",
       "toggle_translated": "Show Translation",
       "translating_title": "Translating Title...",
-      "fullscreen": "Fullscreen"
+      "fullscreen": "Fullscreen",
+      "magazine_cover_title": "AI Digest",
+      "magazine_toc": "Table of Contents"
     },
     "toolbar": {
       "translate": "Selection Translate",
@@ -164,7 +182,19 @@
       "importing": "Importing...",
       "site_explore_title": "Featured RSS Sites",
       "site_search_placeholder": "Search sites...",
-      "btn_use": "Add Feed"
+      "btn_use": "Add Feed",
+      "settings_clear_cache": "Clear All Cache",
+      "magazine_hours_label": "Magazine Time Range (Hours)",
+      "magazine_title": "My AI Magazines",
+      "btn_create_magazine": "Generate New Issue",
+      "magazine_generating_title": "Printing Magazine...",
+      "magazine_process_fetching": "Fetching feeds...",
+      "magazine_process_analyzing": "Filtering articles (within time range)...",
+      "magazine_process_article": "AI is reading & summarizing: ",
+      "magazine_process_done": "Done! Saved to library.",
+      "magazine_empty": "No magazines yet. Create one below.",
+      "view_magazine": "Read",
+      "delete_magazine": "Delete"
     },
     "explore": {
       "title": "RSSHub Explorer",
