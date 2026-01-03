@@ -122,7 +122,7 @@ background:none; cursor:pointer; padding: 4px; transition: opacity .2s; z-index:
 #aiSummaryContent p { margin-bottom: 10px; }
 #aiSummaryContent strong { color: #000; }
 /* 移动端适配 */
-@media (max-width: 768px) {
+@media (max-width: 1280px) {
 body { position: relative; }
 .layout-col { position: absolute; inset: 0; width: 100%; background: #fff; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); transform: translateX(100%); }
 body[data-view="sidebar"] #sidebar { transform: translateX(0); z-index: 30; }
@@ -382,7 +382,7 @@ body[data-view="content"] #contentView { transform: translateX(0); z-index: 50; 
 }
 
 /* 移动端适配画廊模式 */
-@media (max-width: 768px) {
+@media (max-width: 1280px) {
   #articleContent.view-gallery #articleBody { column-count: 2; }
 }
 @media (max-width: 480px) {
