@@ -95,7 +95,9 @@
       "hub_tip_title": "未配置默认服务",
       "hub_tip_desc": "为确保服务可用性与隐私，请选择：",
       "hub_tip_public": "寻找公共实例列表",
-      "hub_tip_deploy": "查看自部署教程"
+      "hub_tip_deploy": "查看自部署教程",
+      "bridge_label": "需要更多源？尝试 RSS-Bridge",
+      "bridge_tip": "将任意站点转RSS链接"
     },
     "explore": {
       "title": "RSSHub 发现",
@@ -204,7 +206,9 @@
       "hub_tip_title": "No Default Service",
       "hub_tip_desc": "For availability and privacy, please choose:",
       "hub_tip_public": "Find Public Instances",
-      "hub_tip_deploy": "Deploy Your Own Guide"
+      "hub_tip_deploy": "Deploy Your Own Guide",
+      "bridge_label": "Need more? Try RSS-Bridge",
+      "bridge_tip": "Convert any site to an RSS link"
     },
     "explore": {
       "title": "RSSHub Explorer",
