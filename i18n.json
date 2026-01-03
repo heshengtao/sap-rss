@@ -35,7 +35,8 @@
       "translating_title": "标题翻译中...",
       "fullscreen": "全屏阅读",
       "magazine_cover_title": "AI Digest",
-      "magazine_toc": "目录 / Table of Contents"
+      "magazine_toc": "目录 / Table of Contents",
+      "article_prefix": "文章" 
     },
     "toolbar": {
       "translate": "选中翻译",
@@ -53,7 +54,9 @@
         "label": "阅读视图",
         "blog": "博客模式",
         "gallery": "画廊模式"
-      }
+      },
+      "read_selection": "朗读",
+      "tip_read": "全文朗读"
     },
     "modals": {
       "add_title": "添加订阅",
@@ -121,7 +124,8 @@
       "explore": "Explore RSSHub",
       "search_placeholder": "Filter feeds...",
       "site_explore": "RSS Site Directory",
-      "magazine": "AI Magazine"
+      "magazine": "AI Magazine",
+      "article_prefix": "Article"
     },
     "list": {
       "title_default": "Article List",
@@ -145,7 +149,7 @@
       "toggle_translated": "Show Translation",
       "translating_title": "Translating Title...",
       "fullscreen": "Fullscreen",
-      "magazine_cover_title": "AI Digest",
+      "magazine_cover_title": "AI 杂志",
       "magazine_toc": "Table of Contents"
     },
     "toolbar": {
@@ -164,7 +168,9 @@
         "label": "View Mode",
         "blog": "Blog View",
         "gallery": "Gallery View"
-      }
+      },
+      "read_selection": "Read Aloud",
+      "tip_read": "Read Full Text"
     },
     "modals": {
       "add_title": "Add Feed",

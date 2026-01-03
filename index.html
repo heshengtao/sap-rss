@@ -538,6 +538,17 @@ label.btn-ghost:hover {
 .mag-article-meta { font-size: 12px; color: #999; margin-bottom: 15px; }
 .mag-article-summary { font-size: 16px; line-height: 1.8; color: #444; background: #fff; }
 .mag-article-summary strong { color: var(--accent); }
+
+/* 朗读按钮激活（播放中）状态 */
+.btn-icon.reading {
+  color: #ff4d4f; /* 红色表示停止 */
+  animation: pulse-red 2s infinite;
+}
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 77, 79, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0); }
+}
 </style>
 </head>
 <body data-view="sidebar">
@@ -612,6 +623,9 @@ label.btn-ghost:hover {
     <button class="btn-icon" id="btnAskAI" onclick="actionAskAIFull(this)" data-tooltip="toolbar.tip_ask">
       <i class="fa-solid fa-robot"></i>
     </button>
+    <button class="btn-icon" id="btnReadFull" onclick="actionReadFull(this)" data-tooltip="toolbar.tip_read">
+      <i class="fa-solid fa-headphones"></i>
+    </button>
     <button class="btn-icon mobile-hide" onclick="toggleFullScreen()" data-tooltip="content.fullscreen"><i class="fa-solid fa-expand"></i></button>
   </div>
 
@@ -645,6 +659,8 @@ label.btn-ghost:hover {
   <button onclick="actionTranslateSelection()"><i class="fa-solid fa-language"></i> <span data-i18n="toolbar.translate">翻译</span></button>
   <div style="width:1px;background:#555;height:14px;margin:0 2px"></div>
   <button onclick="actionAskAI()"><i class="fa-solid fa-robot"></i> <span data-i18n="toolbar.ask_ai">问 AI</span></button>
+  <div style="width:1px;background:#555;height:14px;margin:0 2px"></div>
+  <button onclick="actionReadSelection()"><i class="fa-solid fa-volume-high"></i> <span data-i18n="toolbar.read_selection">朗读</span></button>
 </div>
 <div id="translatePopup">
   <div style="display:flex;justify-content:space-between;margin-bottom:8px;color:#888;font-size:12px">
@@ -2403,6 +2419,155 @@ async function deleteMagazine(id, e) {
 }
 
 /* ================== End AI Magazine Logic ================== */
+
+/* ================== [新增] TTS 朗读功能逻辑 ================== */
+
+// 1. 文本清洗工具函数：移除图片、视频、链接、AI总结等
+function cleanTextForTTS(element, isMagazineMode = false) {
+  // 克隆节点以避免修改页面显示
+  const clone = element.cloneNode(true);
+
+  // 移除所有不需要的媒体标签
+  const mediaTags = ['img', 'video', 'audio', 'iframe', 'svg', 'canvas', 'noscript', 'script', 'style'];
+  mediaTags.forEach(tag => {
+    clone.querySelectorAll(tag).forEach(el => el.remove());
+  });
+
+  // 移除特定的 CSS 类（如代码块行号、隐藏元素等）
+  // 如果不是杂志模式，移除普通文章的 AI 总结区域
+  if (!isMagazineMode) {
+    clone.querySelectorAll('#aiSummarySection').forEach(el => el.remove());
+  }
+
+  // 移除所有链接的 href (防止读出 http://...)，保留文本
+  // 或者直接移除整个链接节点？根据需求是"移除网页链接"，通常指不要读出URL
+  // 这里我们保留链接的文本，但稍后会用正则再次清洗文本中的 URL
+  
+  let text = "";
+
+  if (isMagazineMode) {
+    // === 杂志模式特殊处理 ===
+    // 移除目录
+    clone.querySelectorAll('.magazine-toc').forEach(el => el.remove());
+    clone.querySelectorAll('.magazine-cover').forEach(el => el.remove());
+
+    // 只提取每一个文章块的 标题 和 总结
+    const articles = clone.querySelectorAll('.mag-article');
+    const parts = [];
+    
+    // 开场白
+    parts.push(t('content.magazine_cover_title')); 
+
+    articles.forEach((art, idx) => {
+      const titleEl = art.querySelector('.mag-article-title');
+      const summaryEl = art.querySelector('.mag-article-summary');
+      
+      if (titleEl && summaryEl) {
+        // 第X篇：标题。内容...
+        parts.push(`${t('content.article_prefix') || 'Article'} ${idx + 1}.`);
+        parts.push(titleEl.innerText.trim());
+        parts.push(summaryEl.innerText.trim());
+      }
+    });
+    text = parts.join('\n\n');
+
+  } else {
+    // === 普通文章模式 ===
+    // 提取标题 (如果有 id="artTitle" 的话，通常传入的 element 是 body，标题单独传)
+    // 这里假设传入的是 body，我们手动拼接标题
+    const title = document.getElementById('artTitle') ? document.getElementById('artTitle').innerText : '';
+    const bodyText = clone.innerText;
+    text = title + "\n\n" + bodyText;
+  }
+
+  // === 通用文本清洗 ===
+  // 1. 移除 Markdown 图片标记 ![alt](url) 或 HTML <img>留下的痕迹
+  // 2. 移除所有 URL 链接文本 (http://xxx, https://xxx)
+  text = text.replace(/(https?:\/\/[^\s]+)/g, ''); 
+  
+  // 3. 移除多余的空行和空白
+  text = text.replace(/\n\s*\n/g, '\n').trim();
+
+  return text;
+}
+
+// 2. 选中朗读
+function actionReadSelection() {
+  const selection = window.getSelection().toString().trim();
+  if (!selection) return;
+
+  // 简单清洗选中后的文本中的 URL
+  const cleanText = selection.replace(/(https?:\/\/[^\s]+)/g, '');
+  
+  sendTextToTTS(cleanText);
+  
+  // 隐藏工具栏
+  document.getElementById('selectionToolbar').style.display = 'none';
+}
+
+// 3. 全文朗读
+function actionReadFull(btn) {
+  const contentEl = document.getElementById('articleContent');
+  const isMagazine = contentEl.classList.contains('view-magazine');
+  const icon = btn.querySelector('i');
+
+  // 如果正在朗读（这里做一个简单的状态切换，实际上后端才是播放器）
+  // 我们可以发送一个 stop 指令，或者再次点击视为重新开始
+  if (btn.classList.contains('reading')) {
+    // 发送停止指令
+    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+      state.ws.send(JSON.stringify({ type: 'stop_read' }));
+    }
+    btn.classList.remove('reading');
+    btn.classList.remove('active');
+    icon.className = 'fa-solid fa-headphones';
+    return;
+  }
+
+  // 开始准备文本
+  let textToRead = "";
+  
+  if (isMagazine) {
+    // 杂志模式：传入整个 contentEl 进行解析
+    textToRead = cleanTextForTTS(document.getElementById('articleBody'), true);
+  } else {
+    // 普通模式：传入 articleBody
+    textToRead = cleanTextForTTS(document.getElementById('articleBody'), false);
+  }
+
+  if (!textToRead) {
+    alert("没有可朗读的内容");
+    return;
+  }
+
+  // 发送
+  sendTextToTTS(textToRead);
+
+  // UI 状态更新
+  btn.classList.add('reading');
+  btn.classList.add('active'); // 保持高亮
+  icon.className = 'fa-solid fa-stop'; // 变为停止图标
+  
+  // 简单的超时重置 UI (可选，防止一直显示停止状态)
+  // setTimeout(() => {
+  //   btn.classList.remove('reading');
+  //   btn.classList.remove('active');
+  //   icon.className = 'fa-solid fa-headphones';
+  // }, 5000); 
+}
+
+// 4. 发送 WebSocket 指令
+function sendTextToTTS(text) {
+  if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+    alert("WebSocket 未连接，无法朗读");
+    return;
+  }
+  
+  state.ws.send(JSON.stringify({
+    type: 'start_read',
+    data: { text: text }
+  }));
+}
 </script>
 </body>
 </html>
