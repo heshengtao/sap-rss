@@ -1,12 +1,12 @@
 [
   { 
     "title": {"zh": "Agent Party 中文博客", "en": "Agent Party Chinese Blog"}, 
-    "url": "https://super-agent-party.github.io/posts/feed-zh.xml", 
+    "url": "https://www.agentparty.top/posts/feed-zh.xml", 
     "type": "url" 
   },
   { 
     "title": {"zh": "Agent Party 英文博客", "en": "Agent Party English Blog"}, 
-    "url": "https://super-agent-party.github.io/posts/feed.xml", 
+    "url": "https://www.agentparty.top/posts/feed.xml", 
     "type": "url" 
   }
 ]
