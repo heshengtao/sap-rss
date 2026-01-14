@@ -549,6 +549,138 @@ label.btn-ghost:hover {
   70% { box-shadow: 0 0 0 10px rgba(255, 77, 79, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0); }
 }
+/* ================== [优化] 杂志生成配置界面样式 ================== */
+/* 容器间距优化 */
+#magazineConfigModal .modal-box {
+  max-width: 550px; /* 稍微调宽一点 */
+  padding: 28px;
+}
+
+/* 表单组布局 */
+.mag-config-group {
+  margin-bottom: 22px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  overflow: hidden;
+}
+.mag-config-group:last-of-type { border-bottom: none; }
+
+.mag-config-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 12px;
+}
+.mag-config-label i { color: var(--accent); font-size: 16px; }
+
+/* 数字输入框美化 */
+.mag-input-number {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mag-input-number input {
+  width: 80px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+/* 订阅源网格容器 */
+.source-select-container {
+  max-height: 280px;
+  overflow-y: auto;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 强制两列布局，更整齐 */
+  gap: 8px;
+  overflow: hidden;
+}
+/* 滚动条美化 */
+.source-select-container::-webkit-scrollbar { width: 5px; }
+.source-select-container::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+/* 单个选项卡片 */
+.source-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.source-check-item:hover {
+  border-color: var(--accent);
+  background: #fff8f5;
+  transform: translateY(-1px);
+}
+/* 选中状态的模拟 (通过 JS 配合或简单的 CSS 选择器) */
+.source-check-item input:checked + span + span { font-weight: 600; color: #000; }
+
+.source-check-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.source-check-item img {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.source-check-item .source-name {
+  font-size: 13px;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* 工具栏样式 */
+.mag-config-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+.mag-sel-info { font-size: 12px; color: #888; }
+.mag-sel-info b { color: var(--accent); font-size: 14px; }
+.mag-sel-actions { display: flex; gap: 12px; }
+.mag-sel-actions a {
+  font-size: 12px;
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #eee;
+  transition: .2s;
+}
+.mag-sel-actions a:hover { background: var(--accent); color: #fff; }
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .source-select-container { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body data-view="sidebar">
@@ -857,8 +989,58 @@ label.btn-ghost:hover {
       <!-- 列表将渲染在这里 -->
     </div>
     <div style="margin-top:15px; text-align:center;">
-      <button class="btn btn-primary" style="width:100%; background: var(--accent);" onclick="startMagazineGeneration()">
+      <button class="btn btn-primary" style="width:100%; background: var(--accent);" onclick="openMagConfig()">
         <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="modals.btn_create_magazine">生成新刊</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- [优化版] 杂志生成配置 Modal -->
+<div id="magazineConfigModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span><i class="fa-solid fa-sliders" style="margin-right:8px; color:var(--accent)"></i><span data-i18n="modals.mag_config_title">定制 AI 杂志新刊</span></span> 
+      <span onclick="closeModal('magazineConfigModal')" style="cursor:pointer; color:#999">&times;</span>
+    </div>
+    
+    <!-- 设置 1: 时间 -->
+    <div class="mag-config-group">
+      <div class="mag-config-label">
+        <i class="fa-regular fa-clock"></i>
+        <span data-i18n="modals.mag_config_range">收录范围</span>
+      </div>
+      <div class="mag-input-number">
+        <span style="font-size: 14px; color: #666;" data-i18n="modals.mag_config_hours_prefix">回顾过去</span>
+        <input type="number" id="magConfigHours" min="1" value="24">
+        <span style="font-size: 14px; color: #666;" data-i18n="modals.mag_config_hours_suffix">小时内的文章</span>
+      </div>
+    </div>
+
+    <!-- 设置 2: 来源 -->
+    <div class="mag-config-group" style="margin-bottom: 10px;">
+      <div class="mag-config-label">
+        <i class="fa-solid fa-layer-group"></i>
+        <span data-i18n="modals.mag_config_source_label">内容来源</span>
+      </div>
+      <div class="mag-config-bar">
+        <!-- 注意这里：动态文本交给 JS 处理 -->
+        <div class="mag-sel-info" id="magSelInfo"></div>
+        <div class="mag-sel-actions">
+          <a onclick="toggleMagSources(true)" data-i18n="modals.mag_config_select_all">全选</a>
+          <a onclick="toggleMagSources(false)" data-i18n="modals.mag_config_unselect_all">全不选</a>
+        </div>
+      </div>
+      <div id="magSourceList" class="source-select-container">
+        <!-- JS 动态渲染 -->
+      </div>
+    </div>
+
+    <!-- 底部操作 -->
+    <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:10px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('magazineConfigModal')" data-i18n="modals.btn_cancel">取消</button>
+      <button class="btn btn-primary" style="flex:2; background: linear-gradient(135deg, #ff6b35 0%, #ff8e64 100%);" onclick="startMagazineGeneration()">
+        <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px"></i><span data-i18n="modals.mag_config_btn_start">开始印制新刊</span>
       </button>
     </div>
   </div>
@@ -2096,6 +2278,241 @@ function selectRssSite(url, name) {
   setTimeout(() => input.style.background = '#fafafa', 500);
 }
 /* ================== AI Magazine Logic ================== */
+// --- [新增] 打开配置窗口并渲染订阅源 ---
+function openMagConfig() {
+  closeModal('magazineListModal');
+  openModal('magazineConfigModal');
+  
+  // 执行一次全局 UI 翻译更新，确保 Modal 里的 data-i18n 生效
+  updateUI(); 
+
+  document.getElementById('magConfigHours').value = state.settings.magazineHours;
+  
+  const container = document.getElementById('magSourceList');
+  container.innerHTML = '';
+  
+  state.allFeeds.forEach((feed, index) => {
+    let iconUrl = feed.type === 'rsshub' ? './RSSHub_logo.png' : `https://s2.googleusercontent.com/s2/favicons?domain_url=${new URL(feed.url).origin}`;
+    
+    const label = document.createElement('label');
+    label.className = 'source-check-item';
+    label.innerHTML = `
+      <input type="checkbox" class="mag-source-cb" value="${index}" checked>
+      <img src="${iconUrl}" onerror="this.style.opacity=0">
+      <span class="source-name">${getTrTitle(feed.title)}</span>
+    `;
+    label.querySelector('input').addEventListener('change', updateMagSelCount);
+    container.appendChild(label);
+  });
+
+  // 初始化计数器显示
+  updateMagSelCount();
+}
+
+// --- [新增] 全选/反选与计数 ---
+function toggleMagSources(select) {
+  document.querySelectorAll('.mag-source-cb').forEach(cb => cb.checked = select);
+  updateMagSelCount();
+}
+
+function updateMagSelCount() {
+  const count = document.querySelectorAll('.mag-source-cb:checked').length;
+  // 使用 t() 函数获取翻译，并替换占位符 {n}
+  const translatedText = t('modals.mag_config_selected').replace('{n}', count);
+  document.getElementById('magSelInfo').innerHTML = translatedText;
+}
+
+// --- [修改] 开始生成流程 (核心修改) ---
+async function startMagazineGeneration() {
+  // 1. 获取选中的订阅源索引
+  const checkboxes = document.querySelectorAll('.mag-source-cb:checked');
+  if (checkboxes.length === 0) {
+    alert("请至少选择一个订阅源！");
+    return;
+  }
+  
+  // 2. 获取临时的时间设置 (不保存到全局，或者你可以选择保存)
+  const hours = parseInt(document.getElementById('magConfigHours').value) || 24;
+  
+  closeModal('magazineConfigModal');
+  openModal('magazineProgressModal');
+  document.getElementById('btnStopMag').innerText = "Stop";
+  
+  isGeneratingMag = true;
+  stopGenFlag = false;
+  
+  const logEl = document.getElementById('magLog');
+  const taskEl = document.getElementById('magCurrentTask');
+  const liveEl = document.getElementById('magLiveStream');
+  
+  const log = (msg) => { 
+    const div = document.createElement('div'); 
+    div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`; 
+    logEl.appendChild(div); 
+    logEl.scrollTop = logEl.scrollHeight; 
+  };
+  
+  logEl.innerHTML = ''; 
+  liveEl.innerHTML = '';
+  
+  try {
+    // A. 收集文章 (仅从选中的源)
+    log(t('modals.magazine_process_fetching'));
+    const cutoff = Date.now() - (hours * 60 * 60 * 1000);
+    let candidates = [];
+    
+    // 构建待扫描列表
+    const indices = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    // 遍历选中的订阅源
+    for (let i = 0; i < indices.length; i++) {
+      if (stopGenFlag) break;
+      const feedIdx = indices[i];
+      const feed = state.allFeeds[feedIdx]; // 获取真实的 feed 对象
+      
+      taskEl.innerText = `Fetching (${i+1}/${indices.length}): ${getTrTitle(feed.title)}`;
+      
+      try {
+        const res = await fetchRSS(feed, false); 
+        const freshItems = res.data.filter(item => new Date(item.date).getTime() > cutoff);
+        freshItems.forEach(item => item.sourceTitle = getTrTitle(feed.title));
+        candidates.push(...freshItems);
+        log(`- ${getTrTitle(feed.title)}: Found ${freshItems.length} new articles.`);
+      } catch (e) {
+        log(`x Failed to fetch ${getTrTitle(feed.title)}`);
+      }
+    }
+    
+    // ... 以下代码保持原样，直接复制原来的 startMagazineGeneration 函数中从 "if (stopGenFlag) throw new Error..." 开始的部分 ...
+    // 为了完整性，我在这里继续写完后续逻辑:
+    
+    if (stopGenFlag) throw new Error("Stopped by user.");
+    
+    // 去重
+    const uniqueMap = new Map();
+    candidates.forEach(item => uniqueMap.set(item.link, item));
+    candidates = Array.from(uniqueMap.values());
+    
+    // 排序
+    candidates.sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    if (candidates.length === 0) {
+      log("No articles found in this time range.");
+      document.getElementById('btnStopMag').innerText = "Close";
+      return;
+    }
+    
+    log(t('modals.magazine_process_analyzing') + ` Total: ${candidates.length}`);
+    
+    // B. 逐个总结
+    const summarizedArticles = [];
+    
+    for (let i = 0; i < candidates.length; i++) {
+      if (stopGenFlag) break;
+      const art = candidates[i];
+      taskEl.innerText = `${i+1}/${candidates.length}: ${art.title}`;
+      
+      let cachedMeta = await dbHelper.get('article_meta', art.link) || {};
+      let summaryText = "";
+      let titleTransText = ""; 
+
+      // 1. 标题翻译逻辑
+      if (cachedMeta.titleTranslation) {
+        titleTransText = cachedMeta.titleTranslation;
+        log(`> [Title] Loaded from cache`);
+      } else {
+        log(`> [Title] Translating...`);
+        liveEl.innerText = "Translating Title...";
+        await new Promise((resolve) => {
+          let buf = "";
+          streamAIRequest(
+            `Translate the title to ${state.settings.targetLang}. Return ONLY the translation.`,
+            art.title,
+            (c) => { buf += c; },
+            async () => {
+              titleTransText = buf.trim();
+              cachedMeta = await dbHelper.get('article_meta', art.link) || {};
+              cachedMeta.id = art.link;
+              cachedMeta.titleTranslation = titleTransText;
+              cachedMeta.timestamp = Date.now();
+              await dbHelper.put('article_meta', cachedMeta);
+              resolve();
+            }
+          ).catch(() => resolve());
+        });
+      }
+
+      // 2. 总结逻辑
+      if (cachedMeta.summary) {
+        log(`> [Summary] Loaded from cache`);
+        summaryText = cachedMeta.summary;
+      } else {
+        log(`${t('modals.magazine_process_article')} ${art.title.substr(0,15)}...`);
+        liveEl.innerText = "AI Summarizing...";
+        const tempDiv = document.createElement('div'); tempDiv.innerHTML = art.desc;
+        const rawText = tempDiv.innerText.replace(/\s+/g, ' ').slice(0, 3000);
+        
+        await new Promise((resolve) => {
+          let buffer = "";
+          streamAIRequest(
+            `Summarize in 3 bullet points in ${state.settings.targetLang}. Be concise.`,
+            rawText,
+            (chunk) => { if(stopGenFlag) return; buffer += chunk; liveEl.innerText = buffer; },
+            async () => {
+               const md = window.markdownit();
+               const htmlSummary = md.render(buffer);
+               cachedMeta = await dbHelper.get('article_meta', art.link) || {};
+               cachedMeta.id = art.link;
+               cachedMeta.summary = htmlSummary;
+               cachedMeta.timestamp = Date.now();
+               await dbHelper.put('article_meta', cachedMeta);
+               summaryText = htmlSummary;
+               resolve();
+            }
+          ).catch(() => resolve());
+        });
+      }
+      
+      summarizedArticles.push({
+        title: titleTransText || art.title,
+        originalTitle: art.title,
+        link: art.link,
+        date: art.date,
+        source: art.sourceTitle,
+        summary: summaryText,
+        image: art.image
+      });
+      
+      await new Promise(r => setTimeout(r, 500));
+    }
+ 
+    if (stopGenFlag) throw new Error("Stopped.");
+
+    // C. 保存和查看
+    const magId = Date.now();
+    const magazineData = {
+      id: magId,
+      title: `AI Digest #${new Date().toLocaleDateString()}`,
+      created: Date.now(),
+      articleCount: summarizedArticles.length,
+      articles: summarizedArticles
+    };
+    
+    await dbHelper.put('magazines', magazineData);
+    log(t('modals.magazine_process_done'));
+    taskEl.innerText = "Completed!";
+    document.getElementById('btnStopMag').innerText = "Close";
+    closeModal('magazineProgressModal');
+    viewMagazine(magId);
+
+  } catch(e) {
+    log(`Error: ${e.message}`);
+    document.getElementById('btnStopMag').innerText = "Close";
+  } finally {
+    isGeneratingMag = false;
+  }
+}
+
 
 let isGeneratingMag = false;
 let stopGenFlag = false;
@@ -2131,195 +2548,6 @@ async function loadMagazineList() {
       });
     };
   } catch(e) { console.error(e); }
-}
-
-// 2. 开始生成流程
-async function startMagazineGeneration() {
-  closeModal('magazineListModal');
-  openModal('magazineProgressModal');
-  document.getElementById('btnStopMag').innerText = "Stop";
-  isGeneratingMag = true;
-  stopGenFlag = false;
-  
-  const logEl = document.getElementById('magLog');
-  const taskEl = document.getElementById('magCurrentTask');
-  const liveEl = document.getElementById('magLiveStream');
-  const log = (msg) => { 
-    const div = document.createElement('div'); 
-    div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`; 
-    logEl.appendChild(div); 
-    logEl.scrollTop = logEl.scrollHeight; 
-  };
-  
-  logEl.innerHTML = ''; 
-  liveEl.innerHTML = '';
-  
-  try {
-    // A. 收集文章
-    log(t('modals.magazine_process_fetching'));
-    const hours = state.settings.magazineHours;
-    const cutoff = Date.now() - (hours * 60 * 60 * 1000);
-    let candidates = [];
-    
-    // 遍历所有订阅源
-    for (let i = 0; i < state.allFeeds.length; i++) {
-      if (stopGenFlag) break;
-      const feed = state.allFeeds[i];
-      taskEl.innerText = `Fetching: ${getTrTitle(feed.title)}`;
-      try {
-        // 强制使用缓存优先，如果缓存太旧 (超过缓存时间) fetchRSS 会自动更新，
-        // 这里我们可以为了速度，稍微放宽一点缓存策略，或者直接调用 fetchRSS
-        const res = await fetchRSS(feed, false); 
-        const freshItems = res.data.filter(item => new Date(item.date).getTime() > cutoff);
-        // 附带 Feed 信息
-        freshItems.forEach(item => item.sourceTitle = getTrTitle(feed.title));
-        candidates.push(...freshItems);
-        log(`- ${getTrTitle(feed.title)}: Found ${freshItems.length} new articles.`);
-      } catch (e) {
-        log(`x Failed to fetch ${getTrTitle(feed.title)}`);
-      }
-    }
-    
-    if (stopGenFlag) throw new Error("Stopped by user.");
-    
-    // 去重 (根据 link)
-    const uniqueMap = new Map();
-    candidates.forEach(item => uniqueMap.set(item.link, item));
-    candidates = Array.from(uniqueMap.values());
-    
-    // 按时间倒序
-    candidates.sort((a,b) => new Date(b.date) - new Date(a.date));
-    
-    if (candidates.length === 0) {
-      log("No articles found in this time range.");
-      document.getElementById('btnStopMag').innerText = "Close";
-      return;
-    }
-    
-    log(t('modals.magazine_process_analyzing') + ` Total: ${candidates.length}`);
-    
-    // B. 逐个总结 (Visual Process)
-    const summarizedArticles = [];
-    
-    for (let i = 0; i < candidates.length; i++) {
-      if (stopGenFlag) break;
-      const art = candidates[i];
-      taskEl.innerText = `${i+1}/${candidates.length}: ${art.title}`;
-      
-      // 读取缓存
-      let cachedMeta = await dbHelper.get('article_meta', art.link) || {};
-      let summaryText = "";
-      let titleTransText = ""; // [新增] 用于存储翻译后的标题
-
-      // ================== 1. 处理标题翻译 ==================
-      if (cachedMeta.titleTranslation) {
-        titleTransText = cachedMeta.titleTranslation;
-        log(`> [Title] Loaded from cache`);
-      } else {
-        log(`> [Title] Translating...`);
-        liveEl.innerText = "Translating Title...";
-        
-        // 只有标题没有翻译时，才请求 AI
-        await new Promise((resolve) => {
-          let buf = "";
-          streamAIRequest(
-            `Translate the title to ${state.settings.targetLang}. Return ONLY the translation.`,
-            art.title,
-            (c) => { buf += c; },
-            async () => {
-              titleTransText = buf.trim();
-              // 更新缓存 (合并旧数据)
-              cachedMeta = await dbHelper.get('article_meta', art.link) || {};
-              cachedMeta.id = art.link; // 确保主键存在
-              cachedMeta.titleTranslation = titleTransText;
-              cachedMeta.timestamp = Date.now();
-              await dbHelper.put('article_meta', cachedMeta);
-              resolve();
-            }
-          ).catch(() => resolve()); // 失败忽略，继续下一步
-        });
-      }
-
-      // ================== 2. 处理内容总结 ==================
-      if (cachedMeta.summary) {
-        log(`> [Summary] Loaded from cache`);
-        summaryText = cachedMeta.summary;
-      } else {
-        log(`${t('modals.magazine_process_article')} ${art.title.substr(0,15)}...`);
-        liveEl.innerText = "AI Summarizing...";
-        
-        const tempDiv = document.createElement('div'); tempDiv.innerHTML = art.desc;
-        const rawText = tempDiv.innerText.replace(/\s+/g, ' ').slice(0, 3000);
-        
-        await new Promise((resolve) => {
-          let buffer = "";
-          streamAIRequest(
-            `Summarize in 3 bullet points in ${state.settings.targetLang}. Be concise.`,
-            rawText,
-            (chunk) => {
-               if(stopGenFlag) return;
-               buffer += chunk;
-               liveEl.innerText = buffer;
-            },
-            async () => {
-               const md = window.markdownit();
-               const htmlSummary = md.render(buffer);
-               
-               // 更新缓存
-               cachedMeta = await dbHelper.get('article_meta', art.link) || {};
-               cachedMeta.id = art.link;
-               cachedMeta.summary = htmlSummary;
-               cachedMeta.timestamp = Date.now();
-               await dbHelper.put('article_meta', cachedMeta);
-               
-               summaryText = htmlSummary;
-               resolve();
-            }
-          ).catch(() => resolve());
-        });
-      }
-      
-      // 将结果推入数组
-      summarizedArticles.push({
-        title: titleTransText || art.title, // [修改] 优先使用翻译标题
-        originalTitle: art.title,           // [新增] 保留原标题以备查阅
-        link: art.link,
-        date: art.date,
-        source: art.sourceTitle,
-        summary: summaryText,
-        image: art.image
-      });
-      
-      await new Promise(r => setTimeout(r, 500));
-    }
- 
-    if (stopGenFlag) throw new Error("Stopped.");
-
-    // C. 生成杂志并存储
-    const magId = Date.now();
-    const magazineData = {
-      id: magId,
-      title: `AI Digest #${new Date().toLocaleDateString()}`,
-      created: Date.now(),
-      articleCount: summarizedArticles.length,
-      articles: summarizedArticles
-    };
-    
-    await dbHelper.put('magazines', magazineData);
-    log(t('modals.magazine_process_done'));
-    taskEl.innerText = "Completed!";
-    document.getElementById('btnStopMag').innerText = "Close";
-    
-    // 自动打开刚刚生成的杂志
-    closeModal('magazineProgressModal');
-    viewMagazine(magId);
-
-  } catch(e) {
-    log(`Error: ${e.message}`);
-    document.getElementById('btnStopMag').innerText = "Close";
-  } finally {
-    isGeneratingMag = false;
-  }
 }
 
 function stopMagazineGen() {

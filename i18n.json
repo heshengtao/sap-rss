@@ -100,7 +100,16 @@
       "hub_tip_public": "寻找公共实例列表",
       "hub_tip_deploy": "查看自部署教程",
       "bridge_label": "需要更多源？尝试 RSS-Bridge",
-      "bridge_tip": "将任意站点转RSS链接"
+      "bridge_tip": "将任意站点转RSS链接",
+      "mag_config_title": "定制 AI 杂志新刊",
+      "mag_config_range": "收录范围",
+      "mag_config_hours_prefix": "回顾过去",
+      "mag_config_hours_suffix": "小时内的文章",
+      "mag_config_source_label": "内容来源",
+      "mag_config_selected": "已选择 <b>{n}</b> 个订阅源",
+      "mag_config_select_all": "全选",
+      "mag_config_unselect_all": "全不选",
+      "mag_config_btn_start": "开始印制新刊"
     },
     "explore": {
       "title": "RSSHub 发现",
@@ -115,7 +124,7 @@
   },
   "en": {
     "sidebar": {
-      "title": "My Feeds",
+      "title": "Feeds",
       "loading": "Loading feeds...",
       "clear_cache": "Clear Cache",
       "cleared": "Cache Cleared",
@@ -214,7 +223,16 @@
       "hub_tip_public": "Find Public Instances",
       "hub_tip_deploy": "Deploy Your Own Guide",
       "bridge_label": "Need more? Try RSS-Bridge",
-      "bridge_tip": "Convert any site to an RSS link"
+      "bridge_tip": "Convert any site to an RSS link",
+      "mag_config_title": "Customize New AI Magazine",
+      "mag_config_range": "Time Range",
+      "mag_config_hours_prefix": "Past",
+      "mag_config_hours_suffix": "hours",
+      "mag_config_source_label": "Content Sources",
+      "mag_config_selected": "Selected <b>{n}</b> feeds",
+      "mag_config_select_all": "All",
+      "mag_config_unselect_all": "None",
+      "mag_config_btn_start": "Start Printing"
     },
     "explore": {
       "title": "RSSHub Explorer",
