@@ -2197,27 +2197,6 @@ function changeViewMode(mode) {
   // localStorage.setItem('rss_view_pref', mode); 
 }
 
-// 智能检测模式
-function autoDetectViewMode(htmlContent) {
-  // 创建一个临时容器来分析内容
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = htmlContent;
-  
-  const imgs = tempDiv.querySelectorAll('img');
-  const videos = tempDiv.querySelectorAll('video, iframe');
-  const text = tempDiv.innerText.replace(/\s/g, ''); // 去除空白的纯文本
-  
-  const mediaCount = imgs.length + videos.length;
-  const textLen = text.length;
-
-  // 算法：如果媒体超过 5 个，且平均每张图配文少于 100 字，倾向于画廊模式
-  // 或者：如果全是图没有字
-  if (mediaCount >= 4 && (textLen / mediaCount) < 150) {
-    return 'gallery';
-  }
-  return 'blog';
-}
-
 // 修改原有的 renderArticleBody 函数
 function renderArticleBody(art) {
   document.getElementById('placeholder').style.display='none';
@@ -2266,12 +2245,6 @@ function renderArticleBody(art) {
 
   bodyEl.innerHTML = contentHtml;
   titleEl.innerText = titleText;
-
-  // --- [关键] 自动检测并应用视图模式 ---
-  // 1. 先检测适合什么模式
-  const suggestedMode = autoDetectViewMode(contentHtml);
-  // 2. 应用模式 (如果不希望每次点击文章都重置，可以去掉这行，只在第一次加载时检测)
-  changeViewMode(suggestedMode);
 
   // 滚动回顶部
   document.getElementById('articleScrollArea').scrollTop = 0;
