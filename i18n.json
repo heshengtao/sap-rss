@@ -60,7 +60,7 @@
     },
     "modals": {
       "add_title": "添加订阅",
-      "url_label": "URL / 路由",
+      "url_label": "URL",
       "name_label": "订阅名称 (可选)",
       "type_label": "类型",
       "type_rsshub": "RSSHub 路由",
@@ -183,7 +183,7 @@
     },
     "modals": {
       "add_title": "Add Feed",
-      "url_label": "URL / Route",
+      "url_label": "URL",
       "name_label": "Name (Optional)",
       "type_label": "Type",
       "type_rsshub": "RSSHub Route",

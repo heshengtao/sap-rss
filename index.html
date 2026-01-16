@@ -891,7 +891,6 @@ label.btn-ghost:hover {
       <button class="btn-icon" onclick="openModal('rssSiteModal')" data-tooltip="sidebar.site_explore">
         <i class="fa-solid fa-globe"></i>
       </button>
-      <button class="btn-icon" onclick="openModal('exploreModal')" data-tooltip="sidebar.explore"><i class="fa-solid fa-compass"></i></button>
       <button class="btn-icon" onclick="openModal('addFeedModal')" data-tooltip="sidebar.add"><i class="fa-solid fa-plus"></i></button>
       <button class="btn-icon" onclick="openModal('settingsModal')" data-tooltip="sidebar.settings"><i class="fa-solid fa-cog"></i></button>
     </div>
@@ -1006,18 +1005,11 @@ label.btn-ghost:hover {
     <!-- 原有的手动输入部分 -->
     <div class="form-group">
       <label data-i18n="modals.url_label">URL / 路由</label>
-      <input type="text" id="feedInput" placeholder="/bilibili/ranking/0/3 or rsshub://...">
+      <input type="text" id="feedInput" placeholder="https://example.com/feed">
     </div>
     <div class="form-group">
       <label data-i18n="modals.name_label">订阅名称 (可选)</label>
       <input type="text" id="feedNameInput" placeholder="留空则自动生成">
-    </div>
-    <div class="form-group">
-      <label data-i18n="modals.type_label">类型</label>
-      <select id="feedType">
-        <option value="rsshub" data-i18n="modals.type_rsshub">RSSHub 路由</option>
-        <option value="url" data-i18n="modals.type_url">普通 RSS URL</option>
-      </select>
     </div>
 
     <!-- [新增] OPML 导入区域 -->
@@ -1062,31 +1054,7 @@ label.btn-ghost:hover {
     </div>
   </div>
 </div>
-<!-- RSSHub Explorer Modal -->
-<div id="exploreModal" class="modal">
-  <div class="modal-box" style="max-width: 600px;">
-    <div class="modal-header">
-      <span data-i18n="explore.title">RSSHub 发现</span> 
-      <span onclick="closeModal('exploreModal')" style="cursor:pointer">&times;</span>
-    </div>
-    <div style="margin-bottom: 10px; display: flex; gap: 10px;">
-      <input type="text" id="nsFilter" placeholder="Filter namespace..." oninput="filterNamespaces()" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
-    </div>
-    <div class="explorer-container">
-      <div class="explorer-side" id="nsList">
-        <!-- Namespace List -->
-        <div style="text-align:center; padding:20px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i></div>
-      </div>
-      <div class="explorer-main" id="routeList">
-        <!-- Routes List -->
-        <div style="text-align:center; padding:50px; color:#999" data-i18n="explore.select_ns_tip">请选择左侧分类</div>
-      </div>
-    </div>
-    <div style="margin-top:10px; font-size:12px; color:#999">
-      * 数据来源: 当前配置的 RSSHub 实例 API
-    </div>
-  </div>
-</div>
+
 <!-- 设置 Modal -->
 <div id="settingsModal" class="modal">
   <!-- 注意：给 modal-box 增加了 style="overflow: hidden" 以防止外层滚动 -->
@@ -1123,25 +1091,6 @@ label.btn-ghost:hover {
           <option value="Spanish">Spanish</option>
           <option value="Russian">Russian</option>
         </select>
-      </div>
-
-      <!-- 这是刚才修改过的 RSSHub 提示区域 -->
-      <div class="form-group">
-        <label data-i18n="modals.hub_label">RSSHub 实例地址</label>
-        <input type="text" id="rsshubUrl" placeholder="https://your-rsshub-instance.com" style="margin-bottom: 8px;">
-        <div style="font-size: 12px; color: #666; line-height: 1.6; background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px dashed #ddd;">
-          <i class="fa-solid fa-circle-info" style="color: var(--accent);"></i> 
-          <span style="font-weight:bold;" data-i18n="modals.hub_tip_title"></span>。
-          <span data-i18n="modals.hub_tip_desc"></span>
-          <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
-            <a href="https://docs.rsshub.app/zh/guide/instances" target="_blank" style="color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 6px;">
-              <i class="fa-solid fa-list-ul"></i> <span data-i18n="modals.hub_tip_public"></span>
-            </a>
-            <a href="https://docs.rsshub.app/zh/deploy/" target="_blank" style="color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 6px;">
-              <i class="fa-solid fa-server"></i> <span data-i18n="modals.hub_tip_deploy"></span>
-            </a>
-          </div>
-        </div>
       </div>
 
       <div class="form-group">
@@ -1312,15 +1261,12 @@ const CONFIG = { defaultHub: "", defaultCacheTime: 30, defaultLang: "zh" };
 let state = {
   defaultFeeds: [], userFeeds: [], allFeeds: [],featuredRss: [],
   settings: {
-    hub: localStorage.getItem('rss_hub') || CONFIG.defaultHub,
     cacheTime: parseInt(localStorage.getItem('rss_cache_time')) || CONFIG.defaultCacheTime,
     lang: localStorage.getItem('rss_lang') || navigator.language.split('-')[0] || CONFIG.defaultLang,
     targetLang: localStorage.getItem('rss_target_lang') || "Simplified Chinese",
     magazineHours: parseInt(localStorage.getItem('rss_mag_hours')) || 24
   },
   activeIdx: -1, articles: [], currentArticle: null, ws: null, i18nData: {},
-  // Explorer State
-  namespaces: [], currentNs: null
 };
 if (!['zh', 'en'].includes(state.settings.lang)) state.settings.lang = 'zh';
 /* ================== 初始化 ================== */
@@ -1335,15 +1281,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(!document.getElementById('selectionToolbar').contains(e.target)) 
       document.getElementById('selectionToolbar').style.display='none';
   });
-  const feedInput = document.getElementById('feedInput');
-  const feedType = document.getElementById('feedType');
-  if(feedInput) {
-    feedInput.addEventListener('input', (e) => {
-      const val = e.target.value.trim();
-      if(val.startsWith('/') || val.startsWith('rsshub://')) feedType.value = 'rsshub';
-      else if(val.startsWith('http')) feedType.value = 'url';
-    });
-  }
 });
 /* ================== I18n Logic ================== */
 async function initI18n() {
@@ -1416,22 +1353,8 @@ function updateAllFeeds() {
   renderSidebar();
 }
 async function fetchRSS(feed, force) {
-  if (feed.type === 'rsshub' && !state.settings.hub) {
-    // 自动打开设置弹窗
-    openModal('settingsModal');
-    
-    // 聚焦到输入框 (稍微延迟一下以确保模态框动画开始)
-    setTimeout(() => {
-        const input = document.getElementById('rsshubUrl');
-        if(input) input.focus();
-    }, 100);
-
-    // 抛出多语言错误提示
-    throw new Error(t('list.error_no_hub'));
-  }
   let url = feed.url;
-  // 构建完整 RSSHub URL
-  if(feed.type === 'rsshub') url = url.startsWith('/') ? state.settings.hub.replace(/\/$/, '') + url : state.settings.hub.replace(/\/$/, '') + '/' + url;
+
   const cacheKey = url;
   const cached = await dbHelper.get('feed_cache', cacheKey);
   const now = Date.now();
@@ -1468,7 +1391,7 @@ function renderSidebar() {
     // ... 原有创建 div 的代码 ...
     const div = document.createElement('div');
     div.className = `feed-item ${i === state.activeIdx ? 'active' : ''}`;
-    let iconUrl = f.type === 'rsshub' ? './RSSHub_logo.png' : `https://s2.googleusercontent.com/s2/favicons?domain_url=${new URL(f.url).origin}`;
+    let iconUrl = `https://s2.googleusercontent.com/s2/favicons?domain_url=${new URL(f.url).origin}`;
     div.innerHTML = `<img class="feed-icon" src="${iconUrl}" onerror="this.style.opacity=0"><div class="feed-name">${getTrTitle(f.title)}</div>${f.isDefault ? '<i class="fa-solid fa-lock icon-locked"></i>' : `<button class="btn-delete" onclick="delFeed(${i}, event)">&times;</button>`}`;
     div.onclick = () => loadFeed(i);
     list.appendChild(div);
@@ -1603,170 +1526,7 @@ function updateTranslateBtnState(isTrans) {
     btn.classList.remove('active'); 
   }
 }
-/* ================== RSSHub Explorer Logic ================== */
-async function loadNamespaces() {
-  const listEl = document.getElementById('nsList');
-  listEl.innerHTML = `<div style="text-align:center; padding:20px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i></div>`;
-  try {
-    const hub = state.settings.hub.replace(/\/$/, '');
-    const url = `${hub}/api/namespace`;
-    // Use generic proxy for JSON API
-    const res = await fetch(`/extension_proxy?url=${encodeURIComponent(url)}`, { headers: { 'Accept': 'application/json' }});
-    if(!res.ok) throw new Error("API Error");
-    const data = await res.json();
-    state.namespaces = Object.keys(data).sort(); // data is object like { bilibili: ..., weibo: ... } or list
-    if(Array.isArray(data)) state.namespaces = data.sort();
-    renderNamespaces();
-  } catch(e) {
-    listEl.innerHTML = `<div style="padding:10px; color:red; font-size:12px;">Load Failed: ${e.message}<br>Check RSSHub URL in settings.</div>`;
-  }
-}
-function renderNamespaces(filterText = "") {
-  const listEl = document.getElementById('nsList');
-  listEl.innerHTML = "";
-  const filtered = state.namespaces.filter(ns => ns.toLowerCase().includes(filterText.toLowerCase()));
-  filtered.forEach(ns => {
-    const div = document.createElement('div');
-    div.className = `ns-item ${state.currentNs === ns ? 'active' : ''}`;
-    div.innerText = ns;
-    div.onclick = () => loadRoutes(ns);
-    listEl.appendChild(div);
-  });
-}
-function filterNamespaces() {
-  const val = document.getElementById('nsFilter').value;
-  renderNamespaces(val);
-}
 
-// 支持 Markdown-it + Container 渲染和路径拼接
-async function loadRoutes(ns) {
-  state.currentNs = ns;
-  renderNamespaces(document.getElementById('nsFilter').value);
-  const routeListEl = document.getElementById('routeList');
-  routeListEl.innerHTML = `<div style="text-align:center; padding:50px; color:#999"><i class="fa-solid fa-spinner fa-spin"></i> Loading routes...</div>`;
-  try {
-    const hub = state.settings.hub.replace(/\/$/, '');
-    const url = `${hub}/api/namespace/${ns}`;
-    const res = await fetch(`/extension_proxy?url=${encodeURIComponent(url)}`, { headers: { 'Accept': 'application/json' }});
-    const data = await res.json();
-    routeListEl.innerHTML = "";
-    const routes = data.routes || {};
-    if(Object.keys(routes).length === 0) {
-      routeListEl.innerHTML = `<div style="padding:20px; color:#999">No routes found via API.</div>`;
-      return;
-    }
-    Object.entries(routes).forEach(([pathKey, info]) => {
-      // 1. 计算完整路径
-      let fullPath = pathKey;
-      if (!pathKey.toLowerCase().startsWith(`/${ns.toLowerCase()}`)) {
-         fullPath = `/${ns}${pathKey.startsWith('/') ? '' : '/'}${pathKey}`;
-      }
-      const div = document.createElement('div');
-      div.className = "route-item";
-      // 2. 构建参数说明
-      let paramsHtml = '<div style="font-style:italic; color:#999; margin:5px 0">无参数</div>';
-      if (info.parameters && Object.keys(info.parameters).length > 0) {
-        let rows = '';
-        for (const [pKey, pVal] of Object.entries(info.parameters)) {
-          let desc = typeof pVal === 'object' ? (pVal.description || JSON.stringify(pVal)) : pVal;
-          if (typeof pVal === 'object' && pVal.options) {
-             desc += '<br><strong>Options:</strong> ' + pVal.options.map(o => o.value).join(', ');
-          }
-          rows += `<tr>
-            <td><span class="param-badge">:${pKey}</span></td>
-            <td>${desc}</td>
-          </tr>`;
-        }
-        paramsHtml = `<table class="param-table">
-          <thead><tr><th>参数 / Param</th><th>说明 / Description</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>`;
-      }
-      // 3. 构建描述与示例 (使用 markdown-it + container 渲染)
-      let descHtml = '';
-      if (info.description) {
-         if (typeof window.markdownit !== 'undefined') {
-            const md = window.markdownit({
-                html: true,
-                linkify: true,
-                breaks: true
-            });
-            // 注册容器插件 (Tip, Warning, Danger)
-            if (typeof window.markdownitContainer !== 'undefined') {
-                const registerContainer = (name, title) => {
-                    md.use(window.markdownitContainer, name, {
-                        render: function (tokens, idx) {
-                            if (tokens[idx].nesting === 1) {
-                                return `<div class="admonition ${name}"><span class="admonition-title">${title}</span>`;
-                            } else {
-                                return '</div>\n';
-                            }
-                        }
-                    });
-                };
-                registerContainer('tip', '提示 / Tip');
-                registerContainer('warning', '注意 / Warning');
-                registerContainer('danger', '警告 / Danger');
-            }
-            const rawHtml = md.render(info.description);
-            // hack: 让链接 target="_blank"
-            descHtml = `<div class="md-content">${rawHtml.replace(/<a /g, '<a target="_blank" ')}</div>`;
-         } else {
-            descHtml = `<div style="margin-bottom:8px; line-height:1.4">${cleanMarkdown(info.description)}</div>`;
-         }
-      }
-      const exampleHtml = info.example ? `<div style="background:#eee; padding:4px; border-radius:4px; margin-bottom:8px; font-family:monospace; word-break:break-all; font-size:11px;">Example: ${info.example}</div>` : '';
-      div.innerHTML = `
-        <div class="route-header">
-          <div>
-            <div class="route-title">${info.name || info.title || pathKey}</div>
-            <div class="route-path-preview">${fullPath}</div>
-          </div>
-          <i class="fa-solid fa-chevron-down" style="font-size:12px; color:#ccc; transition:.2s"></i>
-        </div>
-        <div class="route-details" onclick="event.stopPropagation()">
-          ${descHtml}
-          ${exampleHtml}
-          ${paramsHtml}
-          <div style="overflow:hidden">
-            <button class="use-btn" onclick="selectRoute('${fullPath.replace(/'/g, "\\'")}', '${(info.name || info.title || ns).replace(/'/g, "\\'")}')">
-              <i class="fa-solid fa-check"></i> 使用此路由 / Use
-            </button>
-          </div>
-        </div>
-      `;
-      // 点击展开/收起逻辑
-      div.onclick = function() {
-        const isExpanded = this.classList.contains('expanded');
-        document.querySelectorAll('.route-item.expanded').forEach(el => {
-            el.classList.remove('expanded');
-            el.querySelector('.fa-chevron-down').style.transform = 'rotate(0deg)';
-        });
-        if (!isExpanded) {
-          this.classList.add('expanded');
-          this.querySelector('.fa-chevron-down').style.transform = 'rotate(180deg)';
-          setTimeout(() => this.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-        }
-      };
-      routeListEl.appendChild(div);
-    });
-  } catch(e) {
-    routeListEl.innerHTML = `<div style="padding:20px; color:red">Error loading routes: ${e.message}</div>`;
-  }
-}
-// 辅助函数：将选中的路由填回添加框
-window.selectRoute = function(path, title) {
-  closeModal('exploreModal');
-  openModal('addFeedModal');
-  document.getElementById('feedInput').value = path;
-  document.getElementById('feedType').value = 'rsshub';
-  document.getElementById('feedNameInput').value = title;
-  // 视觉反馈
-  const input = document.getElementById('feedInput');
-  input.style.transition = 'background 0.2s';
-  input.style.background = '#e6fffa';
-  setTimeout(() => input.style.background = '#fafafa', 500);
-}
 /* ================== Stream Core ================== */
 async function streamAIRequest(sys, user, onChunk, onFinish) {
   try {
@@ -2053,13 +1813,16 @@ async function clearCache() {
 }
 function addFeed() { 
   let url = document.getElementById('feedInput').value.trim();
-  let type = document.getElementById('feedType').value;
   let name = document.getElementById('feedNameInput').value.trim();
+  
   if(!url) return;
-  if (url.startsWith('rsshub://')) { type = 'rsshub'; url = url.replace('rsshub://', ''); if(!url.startsWith('/')) url='/'+url; }
-  else if (url.startsWith('/')) type = 'rsshub';
-  if(!name) name = type === 'rsshub' ? url.split('/').filter(p=>p).slice(0,2).join('/') : new URL(url.startsWith('http')?url:'http://'+url).hostname;
-  state.userFeeds.push({ title: name, url, type });
+  if (!url.startsWith('http')) {
+      url = 'https://' + url;
+  }
+
+  if(!name) name = new URL(url).hostname;
+  state.userFeeds.push({ title: name, url, type: 'url' });
+  
   saveUserFeeds(); updateAllFeeds(); closeModal('addFeedModal'); loadFeed(state.allFeeds.length-1);
 }
 function delFeed(i, e) {
@@ -2075,12 +1838,10 @@ function delFeed(i, e) {
 function setHub(u) { document.getElementById('rsshubUrl').value = u; }
 function saveUserFeeds() { localStorage.setItem('user_custom_feeds', JSON.stringify(state.userFeeds)); }
 function saveSettings() {
-    state.settings.hub = document.getElementById('rsshubUrl').value.replace(/\/$/, '');
     state.settings.cacheTime = parseInt(document.getElementById('cacheDuration').value) || 30;
     state.settings.targetLang = document.getElementById('targetLangSelect').value;
     state.settings.magazineHours = parseInt(document.getElementById('magazineHours').value) || 24;
     localStorage.setItem('rss_mag_hours', state.settings.magazineHours);
-    localStorage.setItem('rss_hub', state.settings.hub);
     localStorage.setItem('rss_cache_time', state.settings.cacheTime);
     localStorage.setItem('rss_target_lang', state.settings.targetLang);
     closeModal('settingsModal');
@@ -2300,15 +2061,10 @@ function handleOpmlImport(input) {
         const exists = state.allFeeds.some(f => f.url === url);
         if (!exists) {
           // 自动判断类型
-          let type = 'url';
-          if (url.includes('rsshub') || (url.startsWith('/') && !url.startsWith('http'))) {
-            type = 'rsshub';
-          }
-
           state.userFeeds.push({
             title: title,
             url: url,
-            type: type
+            type: 'url' // 统一标记为 url
           });
           count++;
         }
